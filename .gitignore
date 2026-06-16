@@ -41,3 +41,5 @@ backend/**/*.pyc
 # Data (built artifacts)
 data/*.faiss
 data/*.db
+data/*.json
+data/cache/

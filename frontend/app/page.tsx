@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Sparkles, Zap, ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 const fadeUp = {
@@ -70,13 +71,12 @@ export default function Home() {
           animate="visible"
           custom={0.3}
         >
-          <Button
-            size="lg"
-            className="group rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 px-8 font-semibold text-white shadow-lg shadow-purple-900/40 transition-all hover:from-purple-500 hover:to-indigo-500 hover:shadow-purple-900/60"
+          <Link href="/discover"
+            className="group inline-flex items-center rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-3 text-base font-semibold text-white shadow-lg shadow-purple-900/40 transition-all hover:from-purple-500 hover:to-indigo-500 hover:shadow-purple-900/60"
           >
             Start Discovering
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Button>
+          </Link>
           <Button variant="ghost" size="lg" className="rounded-full text-slate-400 hover:text-white">
             <Zap className="mr-2 h-4 w-4 text-yellow-400" />
             How it works
