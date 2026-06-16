@@ -14,6 +14,12 @@ import sys
 import time
 from pathlib import Path
 
+# Force UTF-8 stdout/stderr on Windows (avoids cp1252 UnicodeEncodeError)
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 import faiss
 import httpx
 import numpy as np
@@ -68,14 +74,24 @@ def fetch_page(client: httpx.Client, page: int) -> dict:
     if cache_file.exists():
         return json.loads(cache_file.read_text(encoding="utf-8"))
 
-    resp = client.post(
-        ANILIST_URL,
-        json={"query": ANIME_QUERY, "variables": {"page": page, "perPage": PER_PAGE}},
-        timeout=30,
-    )
-    resp.raise_for_status()
-    data = resp.json()
+    for attempt in range(5):
+        resp = client.post(
+            ANILIST_URL,
+            json={"query": ANIME_QUERY, "variables": {"page": page, "perPage": PER_PAGE}},
+            timeout=30,
+        )
+        if resp.status_code == 429:
+            retry_after = int(resp.headers.get("Retry-After", 60))
+            wait = retry_after + 5
+            print(f"\n  Rate limited on page {page}. Waiting {wait}s...")
+            time.sleep(wait)
+            continue
+        resp.raise_for_status()
+        break
+    else:
+        raise RuntimeError(f"Failed to fetch page {page} after 5 attempts (rate limit).")
 
+    data = resp.json()
     if "errors" in data:
         raise RuntimeError(f"AniList error on page {page}: {data['errors']}")
 

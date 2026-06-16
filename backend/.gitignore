@@ -8,3 +8,7 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Env — never commit secrets
+.env
+.env.local

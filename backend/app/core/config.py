@@ -3,7 +3,11 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-_ROOT = Path(__file__).parent.parent.parent.parent  # project root
+_BACKEND = Path(__file__).parent.parent.parent  # backend/
+_ROOT = _BACKEND.parent                          # project root
+
+# Load order: backend/.env → root .env → root .env.local (later files win on override)
+load_dotenv(_BACKEND / ".env")
 load_dotenv(_ROOT / ".env")
 load_dotenv(_ROOT / ".env.local", override=True)
 

@@ -11,6 +11,10 @@ Usage:
 import json
 import sys
 
+# Force UTF-8 stdout on Windows
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 import faiss
 import numpy as np
 
