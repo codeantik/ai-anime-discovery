@@ -48,7 +48,7 @@ npm run typecheck    # tsc --noEmit
 npm run format       # Prettier
 
 # Backend — run from /backend
-uv run uvicorn app.main:app --reload   # FastAPI dev server → http://localhost:8000
+uv run uvicorn app.main:app --reload --port 8001   # FastAPI dev server → http://localhost:8001
 uv run python -m scripts.build_index  # Offline: fetch anime, embed, write FAISS + MongoDB
 uv run python -m scripts.eval         # precision@k evaluation
 ```
