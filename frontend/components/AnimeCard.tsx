@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ExternalLink, Star } from "lucide-react";
 import Image from "next/image";
+import { AddToMALButton } from "@/components/AddToMALButton";
 import { AnimeRecommendation } from "@/lib/hooks/useRecommendations";
 
 interface Props {
@@ -70,14 +71,17 @@ export function AnimeCard({ anime, index }: Props) {
           </p>
         )}
 
-        <a
-          href={`https://anilist.co/anime/${anime.anilist_id}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-2 flex items-center gap-1 text-xs text-slate-600 transition-colors hover:text-purple-400"
-        >
-          View on AniList <ExternalLink className="h-3 w-3" />
-        </a>
+        <div className="mt-2 flex items-center justify-between">
+          <a
+            href={`https://anilist.co/anime/${anime.anilist_id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-xs text-slate-600 transition-colors hover:text-purple-400"
+          >
+            AniList <ExternalLink className="h-3 w-3" />
+          </a>
+          <AddToMALButton anilistId={anime.anilist_id} />
+        </div>
       </div>
     </motion.div>
   );

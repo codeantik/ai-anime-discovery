@@ -128,15 +128,26 @@ Rules:
 - recommended_because must be personalised to the user's stated preferences"""
 
 
-async def recommend(prefs: RecommendRequest) -> RecommendResponse:
+async def recommend(
+    prefs: RecommendRequest,
+    taste_vec: np.ndarray | None = None,
+) -> RecommendResponse:
     embedding_provider = get_embedding_provider()
     llm_provider = get_llm_provider()
 
     query = _build_query(prefs)
 
     # Embed query
-    vec = await embedding_provider.embed(query)
-    vec_np = np.array(vec, dtype=np.float32)
+    raw_vec = await embedding_provider.embed(query)
+    query_np = np.array(raw_vec, dtype=np.float32)
+
+    # Blend with personal taste vector when available (60/40 taste/query)
+    if taste_vec is not None:
+        blended = 0.6 * taste_vec + 0.4 * query_np
+        norm = np.linalg.norm(blended)
+        vec_np = (blended / norm) if norm > 0 else query_np
+    else:
+        vec_np = query_np
 
     # FAISS search
     results = idx_store.search(vec_np, top_k=TOP_K_SEARCH)

@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.index import load_index
-from app.routers import health, recommend
+from app.routers import auth, health, mal, recommend
 
 
 @asynccontextmanager
@@ -29,3 +29,5 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(recommend.router)
+app.include_router(auth.router)
+app.include_router(mal.router)
