@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
-      // /api/backend/auth/mal/* → backend /auth/mal/* (not under /api)
+      // /api/backend/auth/* → backend /auth/* (auth routes are not under /api)
       {
         source: "/api/backend/auth/:path*",
         destination: `${BACKEND_URL}/auth/:path*`,

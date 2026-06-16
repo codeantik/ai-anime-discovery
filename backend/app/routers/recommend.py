@@ -10,12 +10,13 @@ router = APIRouter(prefix="/api", tags=["recommend"])
 @router.post("/recommend", response_model=RecommendResponse)
 async def recommend(
     prefs: RecommendRequest,
-    mal_access_token: str | None = Cookie(default=None),
+    al_access_token: str | None = Cookie(default=None),
+    al_user_id: str | None = Cookie(default=None),
 ) -> RecommendResponse:
     try:
         taste_vec = None
-        if mal_access_token:
-            taste_vec = await get_taste_vector(mal_access_token)
+        if al_access_token and al_user_id:
+            taste_vec = await get_taste_vector(al_access_token, int(al_user_id))
         return await svc.recommend(prefs, taste_vec=taste_vec)
     except FileNotFoundError as e:
         raise HTTPException(status_code=503, detail=str(e))

@@ -1,62 +1,48 @@
-"""Compute a personal taste vector from the user's MAL history."""
+"""Compute a personal taste vector from the user's AniList watch history."""
 
 import logging
 
-import faiss
 import numpy as np
 
 from app.core import index as idx_store
-from app.core.mal_client import get_anime_list
+from app.core.anilist_client import get_completed_list
 
 logger = logging.getLogger(__name__)
 
 
-async def get_taste_vector(access_token: str) -> np.ndarray | None:
+async def get_taste_vector(access_token: str, user_id: int) -> np.ndarray | None:
     """
-    Fetch user's completed+scored MAL list, find each title in the FAISS index
-    by title match, then return a score-weighted centroid of their embeddings.
-    Returns None if no matching anime are found.
+    Fetch user's completed+scored AniList anime, look each up directly by
+    anilist_id in the FAISS index, and return a score-weighted centroid.
+    Returns None if no matches found.
     """
     try:
-        mal_list = await get_anime_list(access_token, limit=100)
+        entries = await get_completed_list(access_token, user_id)
     except Exception as e:
-        logger.warning(f"Could not fetch MAL list for taste vector: {e}")
+        logger.warning(f"Could not fetch AniList history for taste vector: {e}")
         return None
 
-    if not mal_list:
+    if not entries:
         return None
 
-    index, meta = idx_store.load_index()
-
-    # Build a lowercase-title → faiss_idx lookup
-    title_to_idx: dict[str, int] = {}
-    for faiss_idx_str, anime in meta.items():
-        title = (anime.get("title") or anime.get("title_romaji") or "").lower().strip()
-        if title:
-            title_to_idx[title] = int(faiss_idx_str)
-        romaji = (anime.get("title_romaji") or "").lower().strip()
-        if romaji and romaji not in title_to_idx:
-            title_to_idx[romaji] = int(faiss_idx_str)
+    index, _ = idx_store.load_index()
 
     vectors: list[np.ndarray] = []
     weights: list[float] = []
 
-    for item in mal_list:
-        title_lower = item["title"].lower().strip()
-        faiss_idx = title_to_idx.get(title_lower)
+    for entry in entries:
+        faiss_idx = idx_store.get_faiss_idx_by_anilist_id(entry["anilist_id"])
         if faiss_idx is None:
             continue
         vec = index.reconstruct(faiss_idx)
         vectors.append(vec)
-        weights.append(max(item["score"], 1) / 10.0)  # 1-10 → 0.1-1.0
+        weights.append(entry["score"] / 10.0)
 
     if not vectors:
-        logger.info("No FAISS matches found for user's MAL history.")
+        logger.info("No FAISS matches found for user's AniList history.")
         return None
 
     logger.info(f"Taste vector built from {len(vectors)} matched anime.")
     centroid = np.average(vectors, axis=0, weights=weights).astype(np.float32)
     norm = np.linalg.norm(centroid)
-    if norm > 0:
-        centroid /= norm
-    return centroid
+    return (centroid / norm) if norm > 0 else None

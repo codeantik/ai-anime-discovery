@@ -10,6 +10,7 @@ from app.core.config import DATA_DIR
 
 _index: faiss.Index | None = None
 _meta: dict[str, dict] | None = None
+_anilist_to_faiss: dict[int, int] | None = None
 
 
 def load_index() -> tuple[faiss.Index, dict[str, dict]]:
@@ -28,6 +29,7 @@ def load_index() -> tuple[faiss.Index, dict[str, dict]]:
 
     _index = faiss.read_index(str(faiss_path))
     _meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    _anilist_to_faiss = {v["anilist_id"]: int(k) for k, v in _meta.items() if "anilist_id" in v}
     return _index, _meta
 
 
@@ -42,3 +44,8 @@ def search(query_vec: np.ndarray, top_k: int = 80) -> list[tuple[int, float]]:
 def get_anime(faiss_idx: int) -> dict | None:
     _, meta = load_index()
     return meta.get(str(faiss_idx))
+
+
+def get_faiss_idx_by_anilist_id(anilist_id: int) -> int | None:
+    load_index()  # ensure _anilist_to_faiss is populated
+    return _anilist_to_faiss.get(anilist_id) if _anilist_to_faiss else None

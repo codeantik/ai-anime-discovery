@@ -27,8 +27,8 @@ LANGCHAIN_PROJECT: str = os.getenv("LANGCHAIN_PROJECT", "ai-anime-discovery")
 DATA_DIR: Path = Path(os.getenv("DATA_DIR", str(_ROOT / "data")))
 CACHE_DIR: Path = DATA_DIR / "cache"
 
-# MAL OAuth2 (PKCE-plain)
-MAL_CLIENT_ID: str = os.getenv("MAL_CLIENT_ID", "")
-MAL_CLIENT_SECRET: str = os.getenv("MAL_CLIENT_SECRET", "")
-MAL_REDIRECT_URI: str = os.getenv("MAL_REDIRECT_URI", "http://localhost:8001/auth/mal/callback")
+# AniList OAuth2
+ANILIST_CLIENT_ID: str = os.getenv("ANILIST_CLIENT_ID", "")
+ANILIST_CLIENT_SECRET: str = os.getenv("ANILIST_CLIENT_SECRET", "")
+ANILIST_REDIRECT_URI: str = os.getenv("ANILIST_REDIRECT_URI", "http://localhost:8001/auth/anilist/callback")
 FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
