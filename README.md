@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Anime Discovery
 
-## Getting Started
+A full-stack AI app that learns your anime taste and recommends titles via semantic embeddings + LLM re-ranking — with a one-line reason for every pick. Connect AniList to personalize results from your watch history, chat with a conversational recommendation agent, or export your picks as CSV/JSON.
 
-First, run the development server:
+Built entirely on free-tier infrastructure: no managed vector DB, no always-on paid server.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## How it works
+
+The anime catalog is bounded and slow-changing, so it's embedded **once, offline**, and shipped as a FAISS index. At request time only the user's short query is embedded — never the catalog.
+
+```
+POST /api/recommend
+  → load FAISS index (in-memory)
+  → embed user query
+  → FAISS top-K similarity search (~50)
+  → fetch metadata + apply hard filters (MongoDB)
+  → LLM re-rank to top-N (~12), each with a "recommended_because" reason
+  → return structured JSON
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Layer | Tech |
+|---|---|
+| Frontend | Next.js (App Router) + TypeScript, TailwindCSS + shadcn/ui, Framer Motion, TanStack Query, Zustand |
+| Backend | FastAPI + uv |
+| Vector search | FAISS (`faiss-cpu`), index built offline from AniList GraphQL data |
+| Database | MongoDB Atlas (free M0) via `motor` |
+| LLM / embeddings | Swappable provider interface — OpenAI by default; Gemini/Groq/Ollama as drop-in alternates |
+| Agent | LangGraph (re-rank graph + conversational preference agent), Tavily for live web search |
+| Observability | LangSmith (auto-instrumented) |
+| Auth | AniList OAuth2, tokens in httpOnly cookies |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+See [`CLAUDE.md`](./CLAUDE.md) for full architecture notes and non-negotiable project rules.
 
-## Learn More
+## Repo structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+/
+├── frontend/        # Next.js App Router — Vercel-targeted
+├── backend/         # FastAPI + uv — Railway/Render-targeted
+│   ├── app/
+│   │   ├── core/        # AniList/MAL clients, FAISS index loader, config
+│   │   ├── models/      # Pydantic schemas
+│   │   ├── providers/   # swappable embedding/LLM providers
+│   │   ├── routers/     # auth, chat, list, mal, recommend, health
+│   │   └── services/    # recommend, taste-vector, chat agent
+│   └── scripts/         # build_index, eval, sanity_check
+├── data/             # FAISS index artifact (data/anime.faiss)
+├── .github/workflows/ # scheduled precision@k eval (weekly)
+└── .env.example      # all required keys, documented
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Getting started
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Prerequisites
+- Node.js + npm
+- Python 3.13 + [uv](https://docs.astral.sh/uv/)
+- A free MongoDB Atlas M0 cluster
+- API keys per `.env.example` (OpenAI, AniList OAuth app, Tavily, LangSmith — all free tier)
 
-## Deploy on Vercel
+### Setup
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+cp .env.example .env   # fill in your keys
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Backend** (from `/backend`):
+```bash
+uv sync
+uv run python -m scripts.build_index   # one-time: fetch + embed catalog, write FAISS + MongoDB
+uv run uvicorn app.main:app --reload --port 8001   # → http://localhost:8001
+```
+
+**Frontend** (from `/frontend`):
+```bash
+npm install
+npm run dev   # → http://localhost:3000
+```
+
+### Useful commands
+
+```bash
+# Frontend
+npm run dev | build | lint | typecheck | format
+
+# Backend
+uv run uvicorn app.main:app --reload --port 8001   # dev server
+uv run python -m scripts.build_index                # rebuild offline index (cached, safe to re-run)
+uv run python -m scripts.sanity_check "calm slice-of-life with great art"  # quick nearest-neighbor check
+uv run python -m scripts.eval --k 10 --sample 200    # precision@k retrieval quality eval
+```
+
+A scheduled GitHub Action (`.github/workflows/eval.yml`) runs the precision@k eval weekly.
+
+## Status
+
+All four build phases are complete: offline embedding index, semantic recommendation MVP with export, AniList OAuth + taste-vector personalization, and a LangGraph conversational agent with scheduled evaluation. MAL OAuth2 (PKCE-plain) was scaffolded but left unwired in favor of AniList, which supports social login — see `backend/app/routers/mal.py` and `backend/app/core/mal_client.py` if reviving it as a second connection option.

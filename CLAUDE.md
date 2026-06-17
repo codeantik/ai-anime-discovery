@@ -35,7 +35,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **LangSmith** — auto-instrumented observability; set `LANGCHAIN_TRACING_V2=true` + `LANGCHAIN_API_KEY`
 - **Tavily** (`tavily-python`) — web search when the agent needs live data
 
-**Auth:** MyAnimeList OAuth2 (PKCE-plain), tokens in httpOnly cookies, handled by FastAPI
+**Auth:** AniList OAuth2 (`backend/app/routers/auth.py`), tokens in httpOnly cookies, handled by FastAPI. MAL OAuth2 (PKCE-plain) was scaffolded but is currently unwired — see "MAL OAuth Status" below.
 
 ## Commands
 
@@ -93,9 +93,13 @@ MAL OAuth2 uses **PKCE with the `plain` method**: `code_challenge` must equal `c
 | Phase | Goal |
 |-------|------|
 | 0 | ✅ Scaffold: `frontend/` (Next.js) + `backend/` (FastAPI + uv), folder structure, git init |
-| 1 | Offline embedding index (`uv run python -m scripts.build_index`) + sanity-check CLI |
-| 2 | MVP: preferences form → FAISS retrieval → LLM re-rank → cards UI → CSV/JSON export |
-| 3 | MAL OAuth (PKCE-plain), taste-vector centroid from history, "Add to MAL" per card |
-| 4 | LangGraph conversational agent, precision@k eval script, scheduled GitHub Action |
+| 1 | ✅ Offline embedding index (`uv run python -m scripts.build_index`) + sanity-check CLI |
+| 2 | ✅ MVP: preferences form → FAISS retrieval → LLM re-rank → cards UI → CSV/JSON export |
+| 3 | ✅ AniList OAuth, taste-vector centroid from history, "Add to AniList" per card (MAL OAuth scaffolded but unwired — see below) |
+| 4 | ✅ LangGraph conversational agent, precision@k eval script, scheduled GitHub Action (`.github/workflows/eval.yml`) |
 
-Build one phase at a time — verify acceptance criteria, commit, summarize, wait for go-ahead.
+All four phases are complete. Build one phase at a time on future work — verify acceptance criteria, commit, summarize, wait for go-ahead.
+
+## MAL OAuth Status
+
+Phase 3 originally targeted MAL OAuth2; it was swapped for **AniList OAuth** because the MAL developer page lacks social login. The MAL client/router (`backend/app/core/mal_client.py`, `backend/app/routers/mal.py`) remain in the codebase, unwired, as a future optional second connection. The PKCE-plain gotcha below still applies if reviving it.
