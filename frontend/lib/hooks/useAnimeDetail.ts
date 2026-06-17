@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { BACKEND_URL } from "@/lib/backendUrl";
 
 export interface Character {
   name: string;
@@ -34,7 +35,7 @@ export interface AnimeDetail {
 }
 
 async function fetchAnimeDetail(anilistId: number): Promise<AnimeDetail> {
-  const res = await fetch(`/api/backend/anime/${anilistId}`);
+  const res = await fetch(`${BACKEND_URL}/api/anime/${anilistId}`);
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: "Failed to load anime" }));
     throw new Error(err.detail ?? "Failed to load anime");

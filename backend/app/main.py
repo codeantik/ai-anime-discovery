@@ -3,8 +3,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.core.config import FRONTEND_URL
 from app.core.index import load_index
-from app.routers import auth, chat, health, list, recommend
+from app.routers import anime, auth, chat, health, list, recommend
 
 
 @asynccontextmanager
@@ -21,7 +22,7 @@ app = FastAPI(title="Anime Discovery API", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,6 +30,7 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(recommend.router)
+app.include_router(anime.router)
 app.include_router(auth.router)
 app.include_router(list.router)
 app.include_router(chat.router)

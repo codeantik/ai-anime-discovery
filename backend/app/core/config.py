@@ -11,6 +11,9 @@ load_dotenv(_BACKEND / ".env")
 load_dotenv(_ROOT / ".env")
 load_dotenv(_ROOT / ".env.local", override=True)
 
+ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
+IS_PRODUCTION: bool = ENVIRONMENT == "production"
+
 OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
 OPENAI_EMBEDDING_MODEL: str = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
 OPENAI_CHAT_MODEL: str = os.getenv("OPENAI_CHAT_MODEL", "gpt-4o-mini")

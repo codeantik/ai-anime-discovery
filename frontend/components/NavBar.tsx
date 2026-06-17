@@ -4,9 +4,8 @@ import { motion } from "framer-motion";
 import { LogOut, Sparkles, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { BACKEND_URL } from "@/lib/backendUrl";
 import { useAniListLogout, useAniListUser } from "@/lib/hooks/useMALAuth";
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8001";
 
 export function NavBar() {
   const { data: user, isLoading } = useAniListUser();

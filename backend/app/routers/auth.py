@@ -6,7 +6,7 @@ from fastapi import APIRouter, Cookie, HTTPException, Response
 from fastapi.responses import RedirectResponse
 
 from app.core.anilist_client import exchange_code, get_viewer
-from app.core.config import ANILIST_CLIENT_ID, ANILIST_REDIRECT_URI, FRONTEND_URL
+from app.core.config import ANILIST_CLIENT_ID, ANILIST_REDIRECT_URI, FRONTEND_URL, IS_PRODUCTION
 
 router = APIRouter(prefix="/auth/anilist", tags=["auth"])
 
@@ -16,7 +16,10 @@ _TOKEN_TTL = 365 * 24 * 60 * 60  # AniList tokens last ~1 year
 
 
 def _set_cookies(response: Response, access_token: str, user_id: int) -> None:
-    kw = dict(httponly=True, samesite="lax", secure=False)
+    # Frontend (Vercel) and backend (Render) are different sites in production,
+    # so the cookie must be SameSite=None + Secure to survive cross-site fetches.
+    # Locally both run on "localhost" (same site, different port) so Lax + non-secure works.
+    kw = dict(httponly=True, samesite="none", secure=True) if IS_PRODUCTION else dict(httponly=True, samesite="lax", secure=False)
     response.set_cookie(_ACCESS_COOKIE, access_token, max_age=_TOKEN_TTL, **kw)
     response.set_cookie(_USER_ID_COOKIE, str(user_id), max_age=_TOKEN_TTL, **kw)
 

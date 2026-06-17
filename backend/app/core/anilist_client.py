@@ -69,6 +69,41 @@ async def get_completed_list(token: str, user_id: int) -> list[dict]:
     return entries
 
 
+async def get_anime_detail(anilist_id: int) -> dict | None:
+    """Fetch extended detail fields for one anime (no auth required, no token param)."""
+    data = await _gql(
+        """
+        query ($id: Int) {
+          Media(id: $id, type: ANIME) {
+            id
+            title { romaji english }
+            description(asHtml: false)
+            genres
+            tags { name rank isGeneralSpoiler }
+            startDate { year }
+            format
+            status
+            meanScore
+            averageScore
+            episodes
+            duration
+            source
+            coverImage { large extraLarge }
+            bannerImage
+            studios(isMain: true) { nodes { name } }
+            trailer { id site }
+            characters(sort: ROLE, perPage: 8) {
+              nodes { name { full } image { medium } }
+            }
+          }
+        }
+        """,
+        variables={"id": anilist_id},
+    )
+    media = data.get("data", {}).get("Media")
+    return media
+
+
 async def save_list_entry(token: str, anilist_id: int, status: str = "PLANNING") -> dict:
     """Add/update an anime on the user's AniList."""
     data = await _gql(

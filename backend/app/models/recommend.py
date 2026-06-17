@@ -30,3 +30,34 @@ class RecommendResponse(BaseModel):
     recommendations: list[AnimeRecommendation]
     query_used: str
     total_candidates: int
+
+
+class Character(BaseModel):
+    name: str
+    image: str | None = None
+
+
+class Trailer(BaseModel):
+    site: str
+    id: str
+
+
+class AnimeDetail(BaseModel):
+    anilist_id: int
+    title: str
+    title_romaji: str | None = None
+    synopsis: str
+    genres: list[str]
+    tags: list[str]
+    year: int | None = None
+    format: str | None = None
+    status: str | None = None
+    mean_score: int | None = None
+    episodes: int | None = None
+    duration: int | None = None
+    source: str | None = None
+    cover_image: str | None = None
+    banner_image: str | None = None
+    studios: list[str] = []
+    trailer: Trailer | None = None
+    characters: list[Character] = []

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BACKEND_URL } from "@/lib/backendUrl";
 
 export interface AniListUser {
   id: number;
@@ -9,14 +10,14 @@ export interface AniListUser {
 }
 
 async function fetchAniListUser(): Promise<AniListUser | null> {
-  const res = await fetch("/api/backend/auth/anilist/me", { credentials: "include" });
+  const res = await fetch(`${BACKEND_URL}/auth/anilist/me`, { credentials: "include" });
   if (res.status === 401) return null;
   if (!res.ok) return null;
   return res.json();
 }
 
 async function logoutAniList(): Promise<void> {
-  await fetch("/api/backend/auth/anilist/logout", {
+  await fetch(`${BACKEND_URL}/auth/anilist/logout`, {
     method: "POST",
     credentials: "include",
   });
@@ -26,7 +27,7 @@ async function addToList(
   anilist_id: number,
   status = "PLANNING",
 ): Promise<{ status: string; anilist_id: number }> {
-  const res = await fetch("/api/backend/list/add", {
+  const res = await fetch(`${BACKEND_URL}/api/list/add`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",

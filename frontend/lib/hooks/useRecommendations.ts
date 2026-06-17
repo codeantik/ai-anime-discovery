@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
+import { BACKEND_URL } from "@/lib/backendUrl";
 
 export interface AnimeRecommendation {
   anilist_id: number;
@@ -34,9 +35,10 @@ export interface RecommendResponse {
 }
 
 async function fetchRecommendations(prefs: RecommendRequest): Promise<RecommendResponse> {
-  const res = await fetch("/api/backend/recommend", {
+  const res = await fetch(`${BACKEND_URL}/api/recommend`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify(prefs),
   });
   if (!res.ok) {
