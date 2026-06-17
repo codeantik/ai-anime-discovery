@@ -38,8 +38,7 @@ backend/.venv/
 backend/**/__pycache__/
 backend/**/*.pyc
 
-# Data (built artifacts)
-data/*.faiss
+# Data (built artifacts) — anime.faiss + anime_meta.json are committed so
+# the index ships with the repo (offline-build architecture, free CI eval)
 data/*.db
-data/*.json
 data/cache/

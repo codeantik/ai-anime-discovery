@@ -24,6 +24,8 @@ LANGCHAIN_TRACING_V2: str = os.getenv("LANGCHAIN_TRACING_V2", "false")
 LANGCHAIN_API_KEY: str = os.getenv("LANGCHAIN_API_KEY", "")
 LANGCHAIN_PROJECT: str = os.getenv("LANGCHAIN_PROJECT", "ai-anime-discovery")
 
+TAVILY_API_KEY: str = os.getenv("TAVILY_API_KEY", "")
+
 DATA_DIR: Path = Path(os.getenv("DATA_DIR", str(_ROOT / "data")))
 CACHE_DIR: Path = DATA_DIR / "cache"
 

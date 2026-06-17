@@ -18,3 +18,4 @@ dependencies = [
 
 [project.scripts]
 build-index = "scripts.build_index:main"
+eval = "scripts.eval:main"
