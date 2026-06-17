@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ExternalLink, Star } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { AddToMALButton } from "@/components/AddToMALButton";
 import { AnimeRecommendation } from "@/lib/hooks/useRecommendations";
 
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export function AnimeCard({ anime, index }: Props) {
+  const router = useRouter();
   const score = anime.mean_score ? (anime.mean_score / 10).toFixed(1) : null;
   const meta = [anime.year, anime.format, anime.episodes ? `${anime.episodes} ep` : null]
     .filter(Boolean)
@@ -22,7 +24,11 @@ export function AnimeCard({ anime, index }: Props) {
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.06, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-white/8 bg-white/4 backdrop-blur-md transition-all duration-300 hover:border-purple-500/30 hover:bg-white/8 hover:shadow-[0_0_30px_rgba(168,85,247,0.12)]"
+      role="link"
+      tabIndex={0}
+      onClick={() => router.push(`/anime/${anime.anilist_id}`)}
+      onKeyDown={(e) => e.key === "Enter" && router.push(`/anime/${anime.anilist_id}`)}
+      className="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/8 bg-white/4 backdrop-blur-md transition-all duration-300 hover:border-purple-500/30 hover:bg-white/8 hover:shadow-[0_0_30px_rgba(168,85,247,0.12)]"
     >
       {/* Cover image */}
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-slate-900">
@@ -76,11 +82,14 @@ export function AnimeCard({ anime, index }: Props) {
             href={`https://anilist.co/anime/${anime.anilist_id}`}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
             className="flex items-center gap-1 text-xs text-slate-600 transition-colors hover:text-purple-400"
           >
             AniList <ExternalLink className="h-3 w-3" />
           </a>
-          <AddToMALButton anilistId={anime.anilist_id} />
+          <div onClick={(e) => e.stopPropagation()}>
+            <AddToMALButton anilistId={anime.anilist_id} />
+          </div>
         </div>
       </div>
     </motion.div>
