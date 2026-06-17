@@ -1,9 +1,5 @@
 # Claude Code Prompt — AI Anime Discovery (Phased Build)
 
-> How to use: paste the whole thing as your first message in Claude Code. Or split it — put everything under **Project Context** + **Operating Rules** into a `CLAUDE.md` at the repo root, then paste from **Phase Plan** down as your kickoff message. Attach the `ai-anime-discovery-spec.md` if you want it to have the full reference too.
-
----
-
 You are building a lean, free-tier full-stack AI app called **Anime Discovery**. Work through it **phase by phase**. After each phase: run it, verify the acceptance criteria yourself, commit, give me a short summary, and **stop and wait for my go-ahead** before starting the next phase. Do not build multiple phases in one go.
 
 ## Project Context
