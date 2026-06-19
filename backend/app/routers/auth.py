@@ -16,10 +16,10 @@ _TOKEN_TTL = 365 * 24 * 60 * 60  # AniList tokens last ~1 year
 
 
 def _set_cookies(response: Response, access_token: str, user_id: int) -> None:
-    # Frontend (Vercel) and backend (Render) are different sites in production,
-    # so the cookie must be SameSite=None + Secure to survive cross-site fetches.
-    # Locally both run on "localhost" (same site, different port) so Lax + non-secure works.
-    kw = dict(httponly=True, samesite="none", secure=True) if IS_PRODUCTION else dict(httponly=True, samesite="lax", secure=False)
+    # The frontend proxies all backend calls through its own origin (see
+    # frontend/next.config.ts rewrites()), so this response is always seen by
+    # the browser as first-party — Lax is sufficient even in production.
+    kw = dict(httponly=True, samesite="lax", secure=True) if IS_PRODUCTION else dict(httponly=True, samesite="lax", secure=False)
     response.set_cookie(_ACCESS_COOKIE, access_token, max_age=_TOKEN_TTL, **kw)
     response.set_cookie(_USER_ID_COOKIE, str(user_id), max_age=_TOKEN_TTL, **kw)
 

@@ -35,5 +35,5 @@ CACHE_DIR: Path = DATA_DIR / "cache"
 # AniList OAuth2
 ANILIST_CLIENT_ID: str = os.getenv("ANILIST_CLIENT_ID", "")
 ANILIST_CLIENT_SECRET: str = os.getenv("ANILIST_CLIENT_SECRET", "")
-ANILIST_REDIRECT_URI: str = os.getenv("ANILIST_REDIRECT_URI", "http://localhost:8001/auth/anilist/callback")
+ANILIST_REDIRECT_URI: str = os.getenv("ANILIST_REDIRECT_URI", "http://localhost:3000/api/backend/auth/anilist/callback")
 FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
