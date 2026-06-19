@@ -5,6 +5,7 @@ import { ArrowLeft, ExternalLink, Loader2, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { AddToAniListButton } from "@/components/AddToAniListButton";
 import { AddToMALButton } from "@/components/AddToMALButton";
 import { useAnimeDetail } from "@/lib/hooks/useAnimeDetail";
 
@@ -114,6 +115,7 @@ export default function AnimeDetailPage() {
               >
                 AniList <ExternalLink className="h-3.5 w-3.5" />
               </a>
+              <AddToAniListButton anilistId={anime.anilist_id} />
               <AddToMALButton anilistId={anime.anilist_id} />
             </div>
 

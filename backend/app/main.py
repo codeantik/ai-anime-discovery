@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import FRONTEND_URL
 from app.core.index import load_index
-from app.routers import anime, auth, chat, health, list, recommend
+from app.routers import anime, auth, chat, health, list, mal, mal_auth, recommend
 
 
 @asynccontextmanager
@@ -34,3 +34,5 @@ app.include_router(anime.router)
 app.include_router(auth.router)
 app.include_router(list.router)
 app.include_router(chat.router)
+app.include_router(mal_auth.router)
+app.include_router(mal.router)

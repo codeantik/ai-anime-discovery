@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ExternalLink, Star } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { AddToAniListButton } from "@/components/AddToAniListButton";
 import { AddToMALButton } from "@/components/AddToMALButton";
 import { AnimeRecommendation } from "@/lib/hooks/useRecommendations";
 
@@ -87,7 +88,8 @@ export function AnimeCard({ anime, index }: Props) {
           >
             AniList <ExternalLink className="h-3 w-3" />
           </a>
-          <div onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+            <AddToAniListButton anilistId={anime.anilist_id} />
             <AddToMALButton anilistId={anime.anilist_id} />
           </div>
         </div>

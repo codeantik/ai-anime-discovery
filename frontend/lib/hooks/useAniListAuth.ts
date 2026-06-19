@@ -3,31 +3,31 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { BACKEND_URL } from "@/lib/backendUrl";
 
-export interface MALUser {
+export interface AniListUser {
   id: number;
   name: string;
   picture?: string;
 }
 
-async function fetchMALUser(): Promise<MALUser | null> {
-  const res = await fetch(`${BACKEND_URL}/auth/mal/me`, { credentials: "include" });
+async function fetchAniListUser(): Promise<AniListUser | null> {
+  const res = await fetch(`${BACKEND_URL}/auth/anilist/me`, { credentials: "include" });
   if (res.status === 401) return null;
   if (!res.ok) return null;
   return res.json();
 }
 
-async function logoutMAL(): Promise<void> {
-  await fetch(`${BACKEND_URL}/auth/mal/logout`, {
+async function logoutAniList(): Promise<void> {
+  await fetch(`${BACKEND_URL}/auth/anilist/logout`, {
     method: "POST",
     credentials: "include",
   });
 }
 
-async function addToMAL(
+async function addToList(
   anilist_id: number,
-  status = "plan_to_watch",
-): Promise<{ status: string; mal_id: number }> {
-  const res = await fetch(`${BACKEND_URL}/api/mal/add`, {
+  status = "PLANNING",
+): Promise<{ status: string; anilist_id: number }> {
+  const res = await fetch(`${BACKEND_URL}/api/list/add`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
@@ -40,26 +40,26 @@ async function addToMAL(
   return res.json();
 }
 
-export function useMALUser() {
-  return useQuery<MALUser | null>({
-    queryKey: ["mal-user"],
-    queryFn: fetchMALUser,
+export function useAniListUser() {
+  return useQuery<AniListUser | null>({
+    queryKey: ["anilist-user"],
+    queryFn: fetchAniListUser,
     staleTime: 5 * 60 * 1000,
     retry: false,
   });
 }
 
-export function useMALLogout() {
+export function useAniListLogout() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: logoutMAL,
-    onSuccess: () => queryClient.setQueryData(["mal-user"], null),
+    mutationFn: logoutAniList,
+    onSuccess: () => queryClient.setQueryData(["anilist-user"], null),
   });
 }
 
-export function useAddToMAL() {
+export function useAddToList() {
   return useMutation({
     mutationFn: ({ anilist_id, status }: { anilist_id: number; status?: string }) =>
-      addToMAL(anilist_id, status),
+      addToList(anilist_id, status),
   });
 }

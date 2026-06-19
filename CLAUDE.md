@@ -35,7 +35,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **LangSmith** — auto-instrumented observability; set `LANGCHAIN_TRACING_V2=true` + `LANGCHAIN_API_KEY`
 - **Tavily** (`tavily-python`) — web search when the agent needs live data
 
-**Auth:** AniList OAuth2 (`backend/app/routers/auth.py`), tokens in httpOnly cookies, handled by FastAPI. MAL OAuth2 (PKCE-plain) was scaffolded but is currently unwired — see "MAL OAuth Status" below.
+**Auth:** AniList OAuth2 (`backend/app/routers/auth.py`) and MAL OAuth2 (`backend/app/routers/mal_auth.py`, PKCE-plain), both tokens in httpOnly cookies, handled by FastAPI. AniList drives the taste-vector centroid; MAL is a second, independent connection used only for "Add to MAL list" — see "MAL OAuth Status" below.
 
 ## Commands
 
@@ -97,9 +97,11 @@ MAL OAuth2 uses **PKCE with the `plain` method**: `code_challenge` must equal `c
 | 2 | ✅ MVP: preferences form → FAISS retrieval → LLM re-rank → cards UI → CSV/JSON export |
 | 3 | ✅ AniList OAuth, taste-vector centroid from history, "Add to AniList" per card (MAL OAuth scaffolded but unwired — see below) |
 | 4 | ✅ LangGraph conversational agent, precision@k eval script, scheduled GitHub Action (`.github/workflows/eval.yml`) |
+| 5 | ✅ Anime detail page (`frontend/app/anime/[id]/page.tsx`) with AniList trailer, studios, and characters |
+| 6 | ✅ MAL OAuth2 wired as a second connection: `backend/app/routers/mal_auth.py` (login/callback/logout/me, PKCE-plain) + `backend/app/routers/mal.py` (`/api/mal/add`), "Add to MAL" button per card alongside "Add to AniList" |
 
-All four phases are complete. Build one phase at a time on future work — verify acceptance criteria, commit, summarize, wait for go-ahead.
+All six phases are complete. Build one phase at a time on future work — verify acceptance criteria, commit, summarize, wait for go-ahead.
 
 ## MAL OAuth Status
 
-Phase 3 originally targeted MAL OAuth2; it was swapped for **AniList OAuth** because the MAL developer page lacks social login. The MAL client/router (`backend/app/core/mal_client.py`, `backend/app/routers/mal.py`) remain in the codebase, unwired, as a future optional second connection. The PKCE-plain gotcha below still applies if reviving it.
+Phase 3 originally targeted MAL OAuth2; it was swapped for **AniList OAuth** because the MAL developer page lacks social login. Phase 6 wired up the leftover MAL client/router (`backend/app/core/mal_client.py`, `backend/app/routers/mal_auth.py`, `backend/app/routers/mal.py`) as an independent second connection — login + "Add to MAL list" only. It does **not** feed the taste-vector centroid; AniList remains the sole history source for recommendations. The PKCE-plain gotcha below applies to `mal_auth.py`'s `/login` endpoint.

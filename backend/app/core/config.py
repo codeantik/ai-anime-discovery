@@ -37,3 +37,8 @@ ANILIST_CLIENT_ID: str = os.getenv("ANILIST_CLIENT_ID", "")
 ANILIST_CLIENT_SECRET: str = os.getenv("ANILIST_CLIENT_SECRET", "")
 ANILIST_REDIRECT_URI: str = os.getenv("ANILIST_REDIRECT_URI", "http://localhost:3000/api/backend/auth/anilist/callback")
 FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
+
+# MAL OAuth2 — PKCE with code_challenge_method=plain (MAL does not support S256)
+MAL_CLIENT_ID: str = os.getenv("MAL_CLIENT_ID", "")
+MAL_CLIENT_SECRET: str = os.getenv("MAL_CLIENT_SECRET", "")
+MAL_REDIRECT_URI: str = os.getenv("MAL_REDIRECT_URI", "http://localhost:3000/api/backend/auth/mal/callback")
