@@ -29,7 +29,7 @@ POST /api/recommend
 | LLM / embeddings | Swappable provider interface — OpenAI by default; Gemini/Groq/Ollama as drop-in alternates |
 | Agent | LangGraph (re-rank graph + conversational preference agent), Tavily for live web search |
 | Observability | LangSmith (auto-instrumented) |
-| Auth | AniList OAuth2, tokens in httpOnly cookies |
+| Auth | AniList OAuth2 (drives taste-vector personalization) + MAL OAuth2 (PKCE-plain, independent second connection for "Add to MAL list"), both tokens in httpOnly cookies |
 
 See [`CLAUDE.md`](./CLAUDE.md) for full architecture notes and non-negotiable project rules.
 
@@ -95,4 +95,4 @@ A scheduled GitHub Action (`.github/workflows/eval.yml`) runs the precision@k ev
 
 ## Status
 
-All four build phases are complete: offline embedding index, semantic recommendation MVP with export, AniList OAuth + taste-vector personalization, and a LangGraph conversational agent with scheduled evaluation. MAL OAuth2 (PKCE-plain) was scaffolded but left unwired in favor of AniList, which supports social login — see `backend/app/routers/mal.py` and `backend/app/core/mal_client.py` if reviving it as a second connection option.
+All seven build phases are complete: offline embedding index, semantic recommendation MVP with export, AniList OAuth + taste-vector personalization, a LangGraph conversational agent with scheduled evaluation, an anime detail page (trailer/studios/characters), MAL OAuth2 wired as an independent second connection ("Add to MAL list"), and a search/filter bar + FAISS-based "more like this" on the detail page. See [`CLAUDE.md`](./CLAUDE.md) for the full phase table and the non-negotiable rule that all UI work must be checked at mobile widths.

@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Anime Discovery** — a full-stack AI app that learns a user's anime taste, recommends titles via semantic embeddings + LLM re-ranking (with a reason per pick), and lets the user export picks (CSV/JSON) or push them to MyAnimeList.
 
+> The project originated from a phased build prompt (`prompt.md`, since removed — see git history) targeting Next.js API routes + SQLite + MAL OAuth. The build evolved to the FastAPI/MongoDB/FAISS/AniList architecture documented below; this file is the current source of truth.
+
 ## Repo Structure
 
 ```
@@ -83,6 +85,7 @@ Target audience is **Gen Z** — dark, expressive, alive:
 - **MAL tokens** — httpOnly cookies only, handle token refresh, never expose client-side.
 - Add any API key to `.env.example` with a comment. Never hardcode secrets.
 - **Ask the user before installing any new npm or pip package**, or integrating any new external tool.
+- **All UI changes must be responsive on small/mobile screens.** When touching `frontend/`, check the result at common mobile widths (~320–768px) before considering the task done: no horizontal overflow, no cramped/overlapping controls, nav/action rows must wrap or collapse gracefully rather than spill off-screen.
 
 ## MAL OAuth Gotcha
 
@@ -99,8 +102,9 @@ MAL OAuth2 uses **PKCE with the `plain` method**: `code_challenge` must equal `c
 | 4 | ✅ LangGraph conversational agent, precision@k eval script, scheduled GitHub Action (`.github/workflows/eval.yml`) |
 | 5 | ✅ Anime detail page (`frontend/app/anime/[id]/page.tsx`) with AniList trailer, studios, and characters |
 | 6 | ✅ MAL OAuth2 wired as a second connection: `backend/app/routers/mal_auth.py` (login/callback/logout/me, PKCE-plain) + `backend/app/routers/mal.py` (`/api/mal/add`), "Add to MAL" button per card alongside "Add to AniList" |
+| 7 | ✅ Search/filter bar on the recommendations grid (`frontend/components/FilterBar.tsx`); "More like this" on the anime detail page via FAISS k-NN (`GET /api/anime/{id}/similar`, `backend/app/core/index.py::get_similar`); results-persistence fix (`frontend/lib/stores/results.ts`) so navigating to a detail page and back no longer resets the discover flow; mobile-responsive pass on `NavBar`, `AnimeCard`, and `FilterBar` |
 
-All six phases are complete. Build one phase at a time on future work — verify acceptance criteria, commit, summarize, wait for go-ahead.
+All seven phases are complete. Build one phase at a time on future work — verify acceptance criteria, commit, summarize, wait for go-ahead.
 
 ## MAL OAuth Status
 
