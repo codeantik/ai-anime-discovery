@@ -1,10 +1,41 @@
 from fastapi import APIRouter, HTTPException
 
 from app.core import anilist_client
-from app.core.index import get_anime, get_faiss_idx_by_anilist_id
-from app.models.recommend import AnimeDetail, Character, Trailer
+from app.core.index import get_anime, get_faiss_idx_by_anilist_id, get_similar
+from app.models.recommend import AnimeDetail, AnimeRecommendation, Character, Trailer
 
 router = APIRouter(prefix="/api", tags=["anime"])
+
+
+@router.get("/anime/{anilist_id}/similar", response_model=list[AnimeRecommendation])
+async def similar_anime(anilist_id: int, k: int = 8) -> list[AnimeRecommendation]:
+    faiss_idx = get_faiss_idx_by_anilist_id(anilist_id)
+    if faiss_idx is None:
+        return []
+
+    out: list[AnimeRecommendation] = []
+    for idx, score in get_similar(faiss_idx, top_k=k):
+        anime = get_anime(idx)
+        if not anime:
+            continue
+        out.append(
+            AnimeRecommendation(
+                anilist_id=anime["anilist_id"],
+                title=anime.get("title") or anime.get("title_romaji") or "Unknown",
+                title_romaji=anime.get("title_romaji"),
+                synopsis=anime.get("synopsis") or "",
+                genres=anime.get("genres") or [],
+                tags=anime.get("tags") or [],
+                year=anime.get("year"),
+                format=anime.get("format"),
+                mean_score=anime.get("mean_score"),
+                episodes=anime.get("episodes"),
+                cover_image=anime.get("cover_image"),
+                recommended_because="",
+                similarity=score,
+            )
+        )
+    return out
 
 
 @router.get("/anime/{anilist_id}", response_model=AnimeDetail)

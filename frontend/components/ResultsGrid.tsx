@@ -2,8 +2,10 @@
 
 import { motion } from "framer-motion";
 import { Download, RefreshCw } from "lucide-react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { AnimeCard } from "@/components/AnimeCard";
+import { EMPTY_FILTERS, FilterBar, Filters } from "@/components/FilterBar";
 import { AnimeRecommendation } from "@/lib/hooks/useRecommendations";
 
 interface Props {
@@ -47,6 +49,28 @@ function exportCSV(data: AnimeRecommendation[]) {
 }
 
 export function ResultsGrid({ recommendations, queryUsed, onReset }: Props) {
+  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
+
+  const genres = useMemo(
+    () => Array.from(new Set(recommendations.flatMap((r) => r.genres))).sort(),
+    [recommendations]
+  );
+  const formats = useMemo(
+    () => Array.from(new Set(recommendations.map((r) => r.format).filter(Boolean) as string[])).sort(),
+    [recommendations]
+  );
+
+  const filtered = useMemo(() => {
+    const search = filters.search.trim().toLowerCase();
+    return recommendations.filter((r) => {
+      if (search && !r.title.toLowerCase().includes(search)) return false;
+      if (filters.genre && !r.genres.includes(filters.genre)) return false;
+      if (filters.format && r.format !== filters.format) return false;
+      if (filters.minScore && (r.mean_score ?? 0) < filters.minScore) return false;
+      return true;
+    });
+  }, [recommendations, filters]);
+
   return (
     <div className="w-full">
       {/* Header */}
@@ -60,7 +84,7 @@ export function ResultsGrid({ recommendations, queryUsed, onReset }: Props) {
           <h2 className="text-2xl font-bold text-white">
             Your picks{" "}
             <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              ({recommendations.length})
+              ({filtered.length})
             </span>
           </h2>
           <p className="mt-1 line-clamp-1 max-w-md text-xs text-slate-500">
@@ -73,7 +97,7 @@ export function ResultsGrid({ recommendations, queryUsed, onReset }: Props) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => exportCSV(recommendations)}
+            onClick={() => exportCSV(filtered)}
             className="rounded-full border border-white/10 text-slate-400 hover:text-white"
           >
             <Download className="mr-1.5 h-3.5 w-3.5" /> CSV
@@ -81,7 +105,7 @@ export function ResultsGrid({ recommendations, queryUsed, onReset }: Props) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => exportJSON(recommendations)}
+            onClick={() => exportJSON(filtered)}
             className="rounded-full border border-white/10 text-slate-400 hover:text-white"
           >
             <Download className="mr-1.5 h-3.5 w-3.5" /> JSON
@@ -96,12 +120,23 @@ export function ResultsGrid({ recommendations, queryUsed, onReset }: Props) {
         </div>
       </motion.div>
 
+      <FilterBar genres={genres} formats={formats} filters={filters} onChange={setFilters} />
+
       {/* Grid */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {recommendations.map((anime, i) => (
-          <AnimeCard key={anime.anilist_id} anime={anime} index={i} />
-        ))}
-      </div>
+      {filtered.length === 0 ? (
+        <div className="py-16 text-center text-slate-500">
+          No picks match your filters.
+          <button onClick={() => setFilters(EMPTY_FILTERS)} className="ml-2 text-purple-400 underline">
+            Clear filters
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {filtered.map((anime, i) => (
+            <AnimeCard key={anime.anilist_id} anime={anime} index={i} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

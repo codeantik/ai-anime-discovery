@@ -14,7 +14,7 @@ _anilist_to_faiss: dict[int, int] | None = None
 
 
 def load_index() -> tuple[faiss.Index, dict[str, dict]]:
-    global _index, _meta
+    global _index, _meta, _anilist_to_faiss
     if _index is not None and _meta is not None:
         return _index, _meta
 
@@ -39,6 +39,17 @@ def search(query_vec: np.ndarray, top_k: int = 80) -> list[tuple[int, float]]:
     faiss.normalize_L2(vec)
     scores, indices = index.search(vec, top_k)
     return [(int(idx), float(score)) for idx, score in zip(indices[0], scores[0]) if idx != -1]
+
+
+def get_similar(faiss_idx: int, top_k: int = 8) -> list[tuple[int, float]]:
+    index, _ = load_index()
+    vec = index.reconstruct(faiss_idx).reshape(1, -1)
+    scores, indices = index.search(vec, top_k + 1)
+    return [
+        (int(idx), float(score))
+        for idx, score in zip(indices[0], scores[0])
+        if idx != -1 and idx != faiss_idx
+    ][:top_k]
 
 
 def get_anime(faiss_idx: int) -> dict | None:

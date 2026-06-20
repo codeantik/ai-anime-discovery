@@ -7,7 +7,9 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { AddToAniListButton } from "@/components/AddToAniListButton";
 import { AddToMALButton } from "@/components/AddToMALButton";
+import { AnimeCard } from "@/components/AnimeCard";
 import { useAnimeDetail } from "@/lib/hooks/useAnimeDetail";
+import { useSimilarAnime } from "@/lib/hooks/useSimilarAnime";
 
 function humanize(value?: string) {
   if (!value) return null;
@@ -22,6 +24,7 @@ export default function AnimeDetailPage() {
   const params = useParams<{ id: string }>();
   const anilistId = Number(params.id);
   const { data: anime, isLoading, error } = useAnimeDetail(anilistId);
+  const { data: similar } = useSimilarAnime(anilistId);
 
   if (isLoading) {
     return (
@@ -206,6 +209,23 @@ export default function AnimeDetailPage() {
                   </div>
                   <p className="line-clamp-2 text-xs text-slate-400">{c.name}</p>
                 </div>
+              ))}
+            </div>
+          </motion.section>
+        )}
+
+        {/* More like this */}
+        {similar && similar.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+            className="mt-10"
+          >
+            <h2 className="mb-3 text-lg font-bold text-white">More like this</h2>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+              {similar.map((a, i) => (
+                <AnimeCard key={a.anilist_id} anime={a} index={i} />
               ))}
             </div>
           </motion.section>
