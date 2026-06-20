@@ -4,11 +4,17 @@ import { AnimatePresence, motion } from "framer-motion";
 import { PreferencesForm } from "@/components/PreferencesForm";
 import { ResultsGrid } from "@/components/ResultsGrid";
 import { useRecommendations, RecommendRequest } from "@/lib/hooks/useRecommendations";
+import { useResultsStore } from "@/lib/stores/results";
 
 export default function DiscoverPage() {
-  const { mutate, data, isPending, error, reset } = useRecommendations();
+  const { mutate, isPending, error, reset: resetMutation } = useRecommendations();
+  const { data, setData } = useResultsStore();
 
-  const handleSubmit = (prefs: RecommendRequest) => mutate(prefs);
+  const handleSubmit = (prefs: RecommendRequest) => mutate(prefs, { onSuccess: setData });
+  const reset = () => {
+    setData(null);
+    resetMutation();
+  };
 
   return (
     <main className="relative min-h-screen overflow-hidden px-4 py-16">
