@@ -42,3 +42,11 @@ FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
 MAL_CLIENT_ID: str = os.getenv("MAL_CLIENT_ID", "")
 MAL_CLIENT_SECRET: str = os.getenv("MAL_CLIENT_SECRET", "")
 MAL_REDIRECT_URI: str = os.getenv("MAL_REDIRECT_URI", "http://localhost:3000/api/backend/auth/mal/callback")
+
+# Google OAuth2 — sign-in identity provider only (decoupled from AniList/MAL data links)
+GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
+GOOGLE_REDIRECT_URI: str = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:3000/api/backend/auth/google/callback")
+
+# Secret used to sign our own app session JWT (issued after Google sign-in)
+SESSION_SECRET: str = os.getenv("SESSION_SECRET", "")

@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Cookie, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.core.auth import CurrentUser, get_optional_user
 from app.models.recommend import RecommendRequest, RecommendResponse
 from app.services import recommend as svc
 from app.services.taste import get_taste_vector
@@ -10,15 +11,13 @@ router = APIRouter(prefix="/api", tags=["recommend"])
 @router.post("/recommend", response_model=RecommendResponse)
 async def recommend(
     prefs: RecommendRequest,
-    al_access_token: str | None = Cookie(default=None),
-    al_user_id: str | None = Cookie(default=None),
+    user: CurrentUser | None = Depends(get_optional_user),
 ) -> RecommendResponse:
     try:
         taste_vec = None
-        user_id = int(al_user_id) if al_user_id else None
-        if al_access_token and user_id is not None:
-            taste_vec = await get_taste_vector(al_access_token, user_id)
-        return await svc.recommend(prefs, taste_vec=taste_vec, user_id=user_id)
+        if user is not None:
+            taste_vec = await get_taste_vector(user.access_token, user.id)
+        return await svc.recommend(prefs, taste_vec=taste_vec, user_id=user.id if user else None)
     except FileNotFoundError as e:
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:

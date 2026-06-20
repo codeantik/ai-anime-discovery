@@ -1,8 +1,9 @@
 """Watchlist endpoints — save anime for later (private, separate from AniList/MAL list pushes)."""
 
-from fastapi import APIRouter, Cookie, HTTPException
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
+from app.core.auth import CurrentUser, get_current_user
 from app.core.index import get_anime, get_faiss_idx_by_anilist_id
 from app.models.recommend import AnimeRecommendation
 from app.services.watchlist import add_bookmark, get_watchlist_ids, remove_bookmark
@@ -14,16 +15,9 @@ class AddBookmarkRequest(BaseModel):
     anilist_id: int
 
 
-def _require_user_id(al_user_id: str | None) -> int:
-    if not al_user_id:
-        raise HTTPException(401, "Please connect your AniList account first.")
-    return int(al_user_id)
-
-
 @router.get("")
-async def list_watchlist(al_user_id: str | None = Cookie(default=None)) -> list[AnimeRecommendation]:
-    user_id = _require_user_id(al_user_id)
-    ids = await get_watchlist_ids(user_id)
+async def list_watchlist(user: CurrentUser = Depends(get_current_user)) -> list[AnimeRecommendation]:
+    ids = await get_watchlist_ids(user.id)
 
     out: list[AnimeRecommendation] = []
     for anilist_id in ids:
@@ -56,18 +50,16 @@ async def list_watchlist(al_user_id: str | None = Cookie(default=None)) -> list[
 @router.post("/add")
 async def add_to_watchlist(
     body: AddBookmarkRequest,
-    al_user_id: str | None = Cookie(default=None),
+    user: CurrentUser = Depends(get_current_user),
 ) -> dict:
-    user_id = _require_user_id(al_user_id)
-    await add_bookmark(user_id, body.anilist_id)
+    await add_bookmark(user.id, body.anilist_id)
     return {"status": "added", "anilist_id": body.anilist_id}
 
 
 @router.delete("/{anilist_id}")
 async def remove_from_watchlist(
     anilist_id: int,
-    al_user_id: str | None = Cookie(default=None),
+    user: CurrentUser = Depends(get_current_user),
 ) -> dict:
-    user_id = _require_user_id(al_user_id)
-    await remove_bookmark(user_id, anilist_id)
+    await remove_bookmark(user.id, anilist_id)
     return {"status": "removed", "anilist_id": anilist_id}

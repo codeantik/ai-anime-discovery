@@ -7,6 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BACKEND_URL } from "@/lib/backendUrl";
 import { useAniListLogout, useAniListUser } from "@/lib/hooks/useAniListAuth";
+import { useGoogleLogout, useGoogleUser } from "@/lib/hooks/useGoogleAuth";
 import { useMALLogout, useMALUser } from "@/lib/hooks/useMALAuth";
 
 const NAV_LINKS = [
@@ -17,6 +18,8 @@ const NAV_LINKS = [
 
 export function NavBar() {
   const pathname = usePathname();
+  const { data: googleUser, isLoading: googleLoading } = useGoogleUser();
+  const { mutate: googleLogout, isPending: googleLoggingOut } = useGoogleLogout();
   const { data: user, isLoading } = useAniListUser();
   const { mutate: logout, isPending: loggingOut } = useAniListLogout();
   const { data: malUser, isLoading: malLoading } = useMALUser();
@@ -51,6 +54,42 @@ export function NavBar() {
         </div>
 
         <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-3">
+          {!googleLoading && (
+            <>
+              {googleUser ? (
+                <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2 py-1 sm:gap-2 sm:px-3 sm:py-1.5">
+                  {googleUser.picture ? (
+                    <Image src={googleUser.picture} alt={googleUser.name} width={20} height={20} className="rounded-full" />
+                  ) : (
+                    <User className="h-4 w-4 text-emerald-400" />
+                  )}
+                  <span className="hidden max-w-[8rem] truncate text-sm text-slate-300 sm:inline">
+                    {googleUser.name}
+                  </span>
+                  <button
+                    onClick={() => googleLogout()}
+                    disabled={googleLoggingOut}
+                    title="Sign out"
+                    className="rounded-full p-0.5 text-slate-500 transition-colors hover:text-red-400"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <motion.a
+                  href={`${BACKEND_URL}/auth/google/login`}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-300 transition-colors hover:border-emerald-400/50 hover:bg-emerald-500/20 sm:gap-2 sm:px-4 sm:py-1.5 sm:text-sm"
+                >
+                  Sign in
+                </motion.a>
+              )}
+            </>
+          )}
+
+          {!googleLoading && <div className="hidden h-5 w-px bg-white/10 sm:block" />}
+
           {!isLoading && (
             <>
               {user ? (
