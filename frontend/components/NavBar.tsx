@@ -28,6 +28,9 @@ export function NavBar() {
           <Link href="/discover" className="text-sm text-slate-400 transition-colors hover:text-white">
             Discover
           </Link>
+          <Link href="/chat" className="text-sm text-slate-400 transition-colors hover:text-white">
+            Chat
+          </Link>
 
           {!isLoading && (
             <>
