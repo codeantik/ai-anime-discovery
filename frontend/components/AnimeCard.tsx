@@ -78,7 +78,7 @@ export function AnimeCard({ anime, index }: Props) {
           </p>
         )}
 
-        <div className="mt-2 flex items-center justify-between">
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-1.5">
           <a
             href={`https://anilist.co/anime/${anime.anilist_id}`}
             target="_blank"
@@ -88,7 +88,7 @@ export function AnimeCard({ anime, index }: Props) {
           >
             AniList <ExternalLink className="h-3 w-3" />
           </a>
-          <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+          <div className="flex flex-wrap items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
             <AddToAniListButton anilistId={anime.anilist_id} />
             <AddToMALButton anilistId={anime.anilist_id} />
           </div>
