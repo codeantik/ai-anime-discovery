@@ -31,6 +31,9 @@ export function NavBar() {
           <Link href="/chat" className="text-sm text-slate-400 transition-colors hover:text-white">
             Chat
           </Link>
+          <Link href="/watchlist" className="text-sm text-slate-400 transition-colors hover:text-white">
+            Watchlist
+          </Link>
 
           {!isLoading && (
             <>

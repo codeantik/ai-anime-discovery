@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { AddToAniListButton } from "@/components/AddToAniListButton";
 import { AddToMALButton } from "@/components/AddToMALButton";
+import { AddToWatchlistButton } from "@/components/AddToWatchlistButton";
 import { AnimeRecommendation } from "@/lib/hooks/useRecommendations";
 
 interface Props {
@@ -91,6 +92,7 @@ export function AnimeCard({ anime, index }: Props) {
           <div className="flex flex-wrap items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
             <AddToAniListButton anilistId={anime.anilist_id} />
             <AddToMALButton anilistId={anime.anilist_id} />
+            <AddToWatchlistButton anilistId={anime.anilist_id} />
           </div>
         </div>
       </div>

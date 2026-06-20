@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { AddToAniListButton } from "@/components/AddToAniListButton";
 import { AddToMALButton } from "@/components/AddToMALButton";
+import { AddToWatchlistButton } from "@/components/AddToWatchlistButton";
 import { AnimeCard } from "@/components/AnimeCard";
 import { useAnimeDetail } from "@/lib/hooks/useAnimeDetail";
 import { useSimilarAnime } from "@/lib/hooks/useSimilarAnime";
@@ -120,6 +121,7 @@ export default function AnimeDetailPage() {
               </a>
               <AddToAniListButton anilistId={anime.anilist_id} />
               <AddToMALButton anilistId={anime.anilist_id} />
+              <AddToWatchlistButton anilistId={anime.anilist_id} />
             </div>
 
             {anime.studios.length > 0 && (
