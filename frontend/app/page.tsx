@@ -1,9 +1,28 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, Zap, ArrowRight } from "lucide-react";
+import { Sparkles, Zap, ArrowRight, MessageCircleHeart, Brain, Star } from "lucide-react";
 import Link from "next/link";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
+
+const steps = [
+  {
+    icon: MessageCircleHeart,
+    title: "Tell us your vibe",
+    description: "Pick genres, moods, and titles you've loved — or just chat with our AI agent.",
+  },
+  {
+    icon: Brain,
+    title: "AI finds your matches",
+    description: "Semantic search over thousands of anime, re-ranked by an LLM with a reason for every pick.",
+  },
+  {
+    icon: Star,
+    title: "Save and track",
+    description: "Bookmark picks to your watchlist, or push them straight to AniList or MAL.",
+  },
+];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
@@ -19,8 +38,10 @@ const fadeUp = {
 };
 
 export default function Home() {
+  const howItWorksRef = useRef<HTMLDivElement>(null);
+
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4">
+    <main className="relative flex min-h-screen flex-col items-center overflow-hidden px-4 pb-20">
       {/* Background orbs */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute left-1/4 top-1/4 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-purple-600/20 blur-3xl" />
@@ -28,7 +49,7 @@ export default function Home() {
         <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-pink-500/10 blur-3xl" />
       </div>
 
-      <div className="flex max-w-3xl flex-col items-center gap-6 text-center">
+      <div className="flex min-h-[85vh] max-w-3xl flex-col items-center justify-center gap-6 text-center">
         {/* Badge */}
         <motion.div variants={fadeUp} initial="hidden" animate="visible" custom={0}>
           <span className="inline-flex items-center gap-2 rounded-full border border-purple-500/30 bg-purple-500/10 px-4 py-1.5 text-sm font-medium text-purple-300">
@@ -77,7 +98,12 @@ export default function Home() {
             Start Discovering
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
-          <Button variant="ghost" size="lg" className="rounded-full text-slate-400 hover:text-white">
+          <Button
+            variant="ghost"
+            size="lg"
+            onClick={() => howItWorksRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+            className="rounded-full text-slate-400 hover:text-white"
+          >
             <Zap className="mr-2 h-4 w-4 text-yellow-400" />
             How it works
           </Button>
@@ -102,6 +128,26 @@ export default function Home() {
             </div>
           ))}
         </motion.div>
+      </div>
+
+      {/* How it works */}
+      <div ref={howItWorksRef} className="grid w-full max-w-4xl gap-6 sm:grid-cols-3">
+        {steps.map(({ icon: Icon, title, description }, i) => (
+          <motion.div
+            key={title}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col items-center gap-3 rounded-2xl border border-white/8 bg-white/4 p-6 text-center backdrop-blur-md"
+          >
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-purple-500/15 text-purple-300">
+              <Icon className="h-5 w-5" />
+            </div>
+            <h3 className="font-bold text-white">{title}</h3>
+            <p className="text-sm text-slate-400">{description}</p>
+          </motion.div>
+        ))}
       </div>
     </main>
   );
