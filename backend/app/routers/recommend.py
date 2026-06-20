@@ -15,9 +15,10 @@ async def recommend(
 ) -> RecommendResponse:
     try:
         taste_vec = None
-        if al_access_token and al_user_id:
-            taste_vec = await get_taste_vector(al_access_token, int(al_user_id))
-        return await svc.recommend(prefs, taste_vec=taste_vec)
+        user_id = int(al_user_id) if al_user_id else None
+        if al_access_token and user_id is not None:
+            taste_vec = await get_taste_vector(al_access_token, user_id)
+        return await svc.recommend(prefs, taste_vec=taste_vec, user_id=user_id)
     except FileNotFoundError as e:
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:

@@ -6,6 +6,7 @@ import numpy as np
 from app.core import index as idx_store
 from app.models.recommend import AnimeRecommendation, RecommendRequest, RecommendResponse
 from app.providers.factory import get_embedding_provider, get_llm_provider
+from app.services import history
 
 logger = logging.getLogger(__name__)
 
@@ -131,9 +132,12 @@ Rules:
 async def recommend(
     prefs: RecommendRequest,
     taste_vec: np.ndarray | None = None,
+    user_id: int | None = None,
 ) -> RecommendResponse:
     embedding_provider = get_embedding_provider()
     llm_provider = get_llm_provider()
+
+    seen_ids = await history.get_seen_ids(user_id) if user_id is not None else set()
 
     query = _build_query(prefs)
 
@@ -152,15 +156,23 @@ async def recommend(
     # FAISS search
     results = idx_store.search(vec_np, top_k=TOP_K_SEARCH)
 
-    # Fetch metadata + apply hard filters
+    # Fetch metadata + apply hard filters, deduping by anilist_id
     candidates: list[dict] = []
+    seen_anilist_ids: set[int] = set()
     for faiss_idx, score in results:
         anime = idx_store.get_anime(faiss_idx)
-        if anime is None:
+        if anime is None or anime["anilist_id"] in seen_anilist_ids:
             continue
         if not _passes_filters(anime, prefs):
             continue
+        seen_anilist_ids.add(anime["anilist_id"])
         candidates.append({**anime, "similarity": score})
+
+    # Exclude previously-recommended anime, unless that would leave too few to rerank
+    if seen_ids:
+        fresh = [c for c in candidates if c["anilist_id"] not in seen_ids]
+        if len(fresh) >= TOP_N_RERANK:
+            candidates = fresh
 
     if not candidates:
         return RecommendResponse(
@@ -178,14 +190,18 @@ async def recommend(
         logger.warning(f"LLM rerank failed ({e}), falling back to similarity order.")
         reranked = [{"anilist_id": c["anilist_id"], "recommended_because": "Highly similar to your taste."} for c in candidates[:top_n]]
 
-    # Map anilist_id → full metadata
+    # Map anilist_id → full metadata, deduping in case the LLM repeats an id
     anilist_to_candidate = {c["anilist_id"]: c for c in candidates}
     recommendations: list[AnimeRecommendation] = []
+    used_ids: set[int] = set()
     for item in reranked:
         aid = item.get("anilist_id")
+        if aid in used_ids:
+            continue
         anime = anilist_to_candidate.get(aid)
         if not anime:
             continue
+        used_ids.add(aid)
         recommendations.append(
             AnimeRecommendation(
                 anilist_id=aid,
@@ -203,6 +219,9 @@ async def recommend(
                 similarity=anime["similarity"],
             )
         )
+
+    if user_id is not None:
+        await history.record_shown(user_id, [r.anilist_id for r in recommendations])
 
     return RecommendResponse(
         recommendations=recommendations,

@@ -15,11 +15,12 @@ async def chat(
 ) -> ChatResponse:
     try:
         taste_vec = None
-        if al_access_token and al_user_id:
-            taste_vec = await get_taste_vector(al_access_token, int(al_user_id))
+        user_id = int(al_user_id) if al_user_id else None
+        if al_access_token and user_id is not None:
+            taste_vec = await get_taste_vector(al_access_token, user_id)
 
         messages = [m.model_dump() for m in body.messages]
-        reply, recommendations = await run_chat(messages, taste_vec=taste_vec)
+        reply, recommendations = await run_chat(messages, taste_vec=taste_vec, user_id=user_id)
         return ChatResponse(reply=reply, recommendations=recommendations)
     except FileNotFoundError as e:
         raise HTTPException(status_code=503, detail=str(e))

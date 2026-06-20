@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import FRONTEND_URL
+from app.core.db import close_db
 from app.core.index import load_index
 from app.routers import anime, auth, chat, health, list, mal, mal_auth, recommend
 
@@ -16,6 +17,7 @@ async def lifespan(app: FastAPI):
     except FileNotFoundError as e:
         print(f"WARNING: {e}")
     yield
+    close_db()
 
 
 app = FastAPI(title="Anime Discovery API", version="0.1.0", lifespan=lifespan)

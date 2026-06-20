@@ -100,7 +100,9 @@ async def _run_web_search(query: str) -> str:
         return f"Web search failed: {e}"
 
 
-async def _run_get_recommendations(args: dict, taste_vec: np.ndarray | None) -> tuple[str, list[dict]]:
+async def _run_get_recommendations(
+    args: dict, taste_vec: np.ndarray | None, user_id: int | None
+) -> tuple[str, list[dict]]:
     prefs = RecommendRequest(
         genres=args.get("genres") or [],
         mood=args.get("mood") or "",
@@ -110,7 +112,7 @@ async def _run_get_recommendations(args: dict, taste_vec: np.ndarray | None) -> 
         loved_titles=args.get("loved_titles") or [],
     )
     try:
-        result = await recommend_svc.recommend(prefs, taste_vec=taste_vec)
+        result = await recommend_svc.recommend(prefs, taste_vec=taste_vec, user_id=user_id)
     except Exception as e:
         logger.warning(f"get_recommendations tool failed: {e}")
         return f"Recommendation lookup failed: {e}", []
@@ -154,7 +156,9 @@ async def _agent_node(state: ChatState, taste_vec: np.ndarray | None) -> ChatSta
     }
 
 
-async def _tools_node(state: ChatState, taste_vec: np.ndarray | None) -> ChatState:
+async def _tools_node(
+    state: ChatState, taste_vec: np.ndarray | None, user_id: int | None
+) -> ChatState:
     last = state["messages"][-1]
     tool_messages: list[dict] = []
     recommendations = state["recommendations"]
@@ -169,7 +173,7 @@ async def _tools_node(state: ChatState, taste_vec: np.ndarray | None) -> ChatSta
         if name == "web_search":
             content = await _run_web_search(args.get("query", ""))
         elif name == "get_recommendations":
-            content, recs = await _run_get_recommendations(args, taste_vec)
+            content, recs = await _run_get_recommendations(args, taste_vec, user_id)
             recommendations = recs
         else:
             content = f"Unknown tool: {name}"
@@ -190,14 +194,14 @@ def _should_continue(state: ChatState) -> str:
     return "end"
 
 
-def _build_graph(taste_vec: np.ndarray | None):
+def _build_graph(taste_vec: np.ndarray | None, user_id: int | None):
     from langgraph.graph import StateGraph
 
     async def agent_node(s: ChatState) -> ChatState:
         return await _agent_node(s, taste_vec)
 
     async def tools_node(s: ChatState) -> ChatState:
-        return await _tools_node(s, taste_vec)
+        return await _tools_node(s, taste_vec, user_id)
 
     graph = StateGraph(ChatState)
     graph.add_node("agent", agent_node)
@@ -208,10 +212,12 @@ def _build_graph(taste_vec: np.ndarray | None):
     return graph.compile()
 
 
-async def run_chat(messages: list[dict], taste_vec: np.ndarray | None = None) -> tuple[str, list[dict]]:
+async def run_chat(
+    messages: list[dict], taste_vec: np.ndarray | None = None, user_id: int | None = None
+) -> tuple[str, list[dict]]:
     """Run one turn of the conversational agent. Returns (reply_text, recommendations)."""
     full_messages = [{"role": "system", "content": SYSTEM_PROMPT}] + messages
-    app = _build_graph(taste_vec)
+    app = _build_graph(taste_vec, user_id)
     final_state: ChatState = await app.ainvoke(
         {"messages": full_messages, "recommendations": [], "rounds": 0}
     )

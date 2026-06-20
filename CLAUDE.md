@@ -104,8 +104,9 @@ MAL OAuth2 uses **PKCE with the `plain` method**: `code_challenge` must equal `c
 | 6 | ✅ MAL OAuth2 wired as a second connection: `backend/app/routers/mal_auth.py` (login/callback/logout/me, PKCE-plain) + `backend/app/routers/mal.py` (`/api/mal/add`), "Add to MAL" button per card alongside "Add to AniList" |
 | 7 | ✅ Search/filter bar on the recommendations grid (`frontend/components/FilterBar.tsx`); "More like this" on the anime detail page via FAISS k-NN (`GET /api/anime/{id}/similar`, `backend/app/core/index.py::get_similar`); results-persistence fix (`frontend/lib/stores/results.ts`) so navigating to a detail page and back no longer resets the discover flow; mobile-responsive pass on `NavBar`, `AnimeCard`, and `FilterBar` |
 | 8 | ✅ Frontend chat UI (`frontend/app/chat/page.tsx`) for the existing backend-only `/api/chat` LangGraph agent (Phase 4) — message bubbles, inline recommendation cards linking to anime detail pages, "Chat" link in `NavBar`; client manages history, backend stays stateless per request |
+| 9 | ✅ Per-user recommendation history: `backend/app/core/db.py` (Motor/MongoDB Atlas singleton, first real Mongo usage in the backend), `backend/app/services/history.py` (`recommendation_history` collection keyed by AniList user id) — `/api/recommend` and `/api/chat` now exclude previously-shown anime for logged-in users (falls back to no exclusion if too few candidates remain). Also fixed a pre-existing bug where `/api/recommend`/`/api/chat` could return duplicate `anilist_id` entries (deduped both the FAISS candidate list and the LLM rerank output in `backend/app/services/recommend.py`). |
 
-All eight phases are complete. Build one phase at a time on future work — verify acceptance criteria, commit, summarize, wait for go-ahead.
+All nine phases are complete. Build one phase at a time on future work — verify acceptance criteria, commit, summarize, wait for go-ahead.
 
 ## MAL OAuth Status
 
