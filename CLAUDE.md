@@ -103,8 +103,9 @@ MAL OAuth2 uses **PKCE with the `plain` method**: `code_challenge` must equal `c
 | 5 | ✅ Anime detail page (`frontend/app/anime/[id]/page.tsx`) with AniList trailer, studios, and characters |
 | 6 | ✅ MAL OAuth2 wired as a second connection: `backend/app/routers/mal_auth.py` (login/callback/logout/me, PKCE-plain) + `backend/app/routers/mal.py` (`/api/mal/add`), "Add to MAL" button per card alongside "Add to AniList" |
 | 7 | ✅ Search/filter bar on the recommendations grid (`frontend/components/FilterBar.tsx`); "More like this" on the anime detail page via FAISS k-NN (`GET /api/anime/{id}/similar`, `backend/app/core/index.py::get_similar`); results-persistence fix (`frontend/lib/stores/results.ts`) so navigating to a detail page and back no longer resets the discover flow; mobile-responsive pass on `NavBar`, `AnimeCard`, and `FilterBar` |
+| 8 | ✅ Frontend chat UI (`frontend/app/chat/page.tsx`) for the existing backend-only `/api/chat` LangGraph agent (Phase 4) — message bubbles, inline recommendation cards linking to anime detail pages, "Chat" link in `NavBar`; client manages history, backend stays stateless per request |
 
-All seven phases are complete. Build one phase at a time on future work — verify acceptance criteria, commit, summarize, wait for go-ahead.
+All eight phases are complete. Build one phase at a time on future work — verify acceptance criteria, commit, summarize, wait for go-ahead.
 
 ## MAL OAuth Status
 
