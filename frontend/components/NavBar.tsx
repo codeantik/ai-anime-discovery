@@ -1,14 +1,22 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { LogOut, Sparkles, User } from "lucide-react";
+import { Bookmark, Compass, MessageCircle, Sparkles, User, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { BACKEND_URL } from "@/lib/backendUrl";
 import { useAniListLogout, useAniListUser } from "@/lib/hooks/useAniListAuth";
 import { useMALLogout, useMALUser } from "@/lib/hooks/useMALAuth";
 
+const NAV_LINKS = [
+  { href: "/discover", label: "Discover", icon: Compass },
+  { href: "/chat", label: "Chat", icon: MessageCircle },
+  { href: "/watchlist", label: "Watchlist", icon: Bookmark },
+];
+
 export function NavBar() {
+  const pathname = usePathname();
   const { data: user, isLoading } = useAniListUser();
   const { mutate: logout, isPending: loggingOut } = useAniListLogout();
   const { data: malUser, isLoading: malLoading } = useMALUser();
@@ -24,39 +32,44 @@ export function NavBar() {
           </span>
         </Link>
 
-        <div className="flex flex-1 flex-wrap items-center justify-end gap-2 sm:gap-4">
-          <Link href="/discover" className="text-sm text-slate-400 transition-colors hover:text-white">
-            Discover
-          </Link>
-          <Link href="/chat" className="text-sm text-slate-400 transition-colors hover:text-white">
-            Chat
-          </Link>
-          <Link href="/watchlist" className="text-sm text-slate-400 transition-colors hover:text-white">
-            Watchlist
-          </Link>
+        <div className="order-3 flex w-full flex-wrap items-center justify-center gap-1 border-t border-white/5 pt-2 sm:order-none sm:w-auto sm:justify-start sm:border-t-0 sm:pt-0 sm:pl-2">
+          {NAV_LINKS.map(({ href, label, icon: Icon }) => {
+            const active = pathname === href;
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-colors ${
+                  active ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {label}
+              </Link>
+            );
+          })}
+        </div>
 
+        <div className="flex flex-wrap items-center justify-end gap-1.5 sm:gap-3">
           {!isLoading && (
             <>
               {user ? (
-                <div className="flex items-center gap-1.5 sm:gap-3">
-                  <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2 py-1 sm:gap-2 sm:px-3 sm:py-1.5">
-                    {user.picture ? (
-                      <Image src={user.picture} alt={user.name} width={20} height={20} className="rounded-full" />
-                    ) : (
-                      <User className="h-4 w-4 text-purple-400" />
-                    )}
-                    <span className="hidden max-w-[8rem] truncate text-sm text-slate-300 sm:inline">
-                      {user.name}
-                    </span>
-                  </div>
+                <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2 py-1 sm:gap-2 sm:px-3 sm:py-1.5">
+                  {user.picture ? (
+                    <Image src={user.picture} alt={user.name} width={20} height={20} className="rounded-full" />
+                  ) : (
+                    <User className="h-4 w-4 text-purple-400" />
+                  )}
+                  <span className="hidden max-w-[8rem] truncate text-sm text-slate-300 sm:inline">
+                    {user.name}
+                  </span>
                   <button
                     onClick={() => logout()}
                     disabled={loggingOut}
                     title="Disconnect AniList"
-                    className="flex items-center gap-1.5 rounded-full px-2 py-1 text-sm text-slate-500 transition-colors hover:text-red-400 sm:px-3 sm:py-1.5"
+                    className="rounded-full p-0.5 text-slate-500 transition-colors hover:text-red-400"
                   >
-                    <LogOut className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Disconnect</span>
+                    <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
               ) : (
@@ -75,28 +88,27 @@ export function NavBar() {
             </>
           )}
 
+          {!isLoading && !malLoading && <div className="hidden h-5 w-px bg-white/10 sm:block" />}
+
           {!malLoading && (
             <>
               {malUser ? (
-                <div className="flex items-center gap-1.5 sm:gap-3">
-                  <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2 py-1 sm:gap-2 sm:px-3 sm:py-1.5">
-                    {malUser.picture ? (
-                      <Image src={malUser.picture} alt={malUser.name} width={20} height={20} className="rounded-full" />
-                    ) : (
-                      <User className="h-4 w-4 text-blue-400" />
-                    )}
-                    <span className="hidden max-w-[8rem] truncate text-sm text-slate-300 sm:inline">
-                      {malUser.name}
-                    </span>
-                  </div>
+                <div className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2 py-1 sm:gap-2 sm:px-3 sm:py-1.5">
+                  {malUser.picture ? (
+                    <Image src={malUser.picture} alt={malUser.name} width={20} height={20} className="rounded-full" />
+                  ) : (
+                    <User className="h-4 w-4 text-blue-400" />
+                  )}
+                  <span className="hidden max-w-[8rem] truncate text-sm text-slate-300 sm:inline">
+                    {malUser.name}
+                  </span>
                   <button
                     onClick={() => malLogout()}
                     disabled={malLoggingOut}
                     title="Disconnect MAL"
-                    className="flex items-center gap-1.5 rounded-full px-2 py-1 text-sm text-slate-500 transition-colors hover:text-red-400 sm:px-3 sm:py-1.5"
+                    className="rounded-full p-0.5 text-slate-500 transition-colors hover:text-red-400"
                   >
-                    <LogOut className="h-3.5 w-3.5" />
-                    <span className="hidden sm:inline">Disconnect</span>
+                    <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
               ) : (
