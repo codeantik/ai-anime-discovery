@@ -6,7 +6,7 @@ import numpy as np
 from app.core import index as idx_store
 from app.models.recommend import AnimeRecommendation, RecommendRequest, RecommendResponse
 from app.providers.factory import get_embedding_provider, get_llm_provider
-from app.services import history
+from app.services import feedback, history
 
 logger = logging.getLogger(__name__)
 
@@ -138,6 +138,7 @@ async def recommend(
     llm_provider = get_llm_provider()
 
     seen_ids = await history.get_seen_ids(user_id) if user_id is not None else set()
+    disliked_ids = await feedback.get_disliked_ids(user_id) if user_id is not None else set()
 
     query = _build_query(prefs)
 
@@ -168,11 +169,15 @@ async def recommend(
         seen_anilist_ids.add(anime["anilist_id"])
         candidates.append({**anime, "similarity": score})
 
-    # Exclude previously-recommended anime, unless that would leave too few to rerank
-    if seen_ids:
-        fresh = [c for c in candidates if c["anilist_id"] not in seen_ids]
+    # Exclude previously-recommended and disliked anime, unless that would leave too few to rerank
+    exclude_ids = seen_ids | disliked_ids
+    if exclude_ids:
+        fresh = [c for c in candidates if c["anilist_id"] not in exclude_ids]
         if len(fresh) >= TOP_N_RERANK:
             candidates = fresh
+        else:
+            # Even when falling back, never resurface an explicit dislike.
+            candidates = [c for c in candidates if c["anilist_id"] not in disliked_ids]
 
     if not candidates:
         return RecommendResponse(

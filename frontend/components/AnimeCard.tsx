@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { AddToAniListButton } from "@/components/AddToAniListButton";
 import { AddToMALButton } from "@/components/AddToMALButton";
 import { AddToWatchlistButton } from "@/components/AddToWatchlistButton";
+import { FeedbackButtons } from "@/components/FeedbackButtons";
 import { AnimeRecommendation } from "@/lib/hooks/useRecommendations";
 
 interface Props {
@@ -90,6 +91,7 @@ export function AnimeCard({ anime, index }: Props) {
             AniList <ExternalLink className="h-3 w-3" />
           </a>
           <div className="flex flex-wrap items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+            <FeedbackButtons anilistId={anime.anilist_id} />
             <AddToAniListButton anilistId={anime.anilist_id} />
             <AddToMALButton anilistId={anime.anilist_id} />
             <AddToWatchlistButton anilistId={anime.anilist_id} />

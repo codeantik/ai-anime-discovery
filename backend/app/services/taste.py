@@ -1,4 +1,4 @@
-"""Compute a personal taste vector from the user's AniList watch history."""
+"""Compute a personal taste vector from AniList watch history + explicit thumbs feedback."""
 
 import logging
 
@@ -6,43 +6,52 @@ import numpy as np
 
 from app.core import index as idx_store
 from app.core.anilist_client import get_completed_list
+from app.services.feedback import get_feedback_map
 
 logger = logging.getLogger(__name__)
+
+# Explicit thumbs feedback is a stronger signal than an implicit AniList score
+# (max weight 1.0), so it gets outsized influence over the centroid direction.
+FEEDBACK_WEIGHT = 2.5
 
 
 async def get_taste_vector(access_token: str, user_id: int) -> np.ndarray | None:
     """
-    Fetch user's completed+scored AniList anime, look each up directly by
-    anilist_id in the FAISS index, and return a score-weighted centroid.
-    Returns None if no matches found.
+    Builds a centroid from the user's completed+scored AniList anime, nudged by
+    any thumbs up/down feedback (liked anime pull the centroid toward them,
+    disliked anime push it away). Returns None if there's no signal at all.
     """
     try:
         entries = await get_completed_list(access_token, user_id)
     except Exception as e:
         logger.warning(f"Could not fetch AniList history for taste vector: {e}")
-        return None
-
-    if not entries:
-        return None
+        entries = []
 
     index, _ = idx_store.load_index()
-
-    vectors: list[np.ndarray] = []
-    weights: list[float] = []
+    weighted_sum = np.zeros(index.d, dtype=np.float32)
+    matched = 0
 
     for entry in entries:
         faiss_idx = idx_store.get_faiss_idx_by_anilist_id(entry["anilist_id"])
         if faiss_idx is None:
             continue
         vec = index.reconstruct(faiss_idx)
-        vectors.append(vec)
-        weights.append(entry["score"] / 10.0)
+        weighted_sum += (entry["score"] / 10.0) * vec
+        matched += 1
 
-    if not vectors:
-        logger.info("No FAISS matches found for user's AniList history.")
+    feedback = await get_feedback_map(user_id)
+    for anilist_id, signal in feedback.items():
+        faiss_idx = idx_store.get_faiss_idx_by_anilist_id(anilist_id)
+        if faiss_idx is None:
+            continue
+        vec = index.reconstruct(faiss_idx)
+        weighted_sum += signal * FEEDBACK_WEIGHT * vec
+        matched += 1
+
+    if matched == 0:
+        logger.info("No taste signal (history or feedback) found for user.")
         return None
 
-    logger.info(f"Taste vector built from {len(vectors)} matched anime.")
-    centroid = np.average(vectors, axis=0, weights=weights).astype(np.float32)
-    norm = np.linalg.norm(centroid)
-    return (centroid / norm) if norm > 0 else None
+    logger.info(f"Taste vector built from {matched} signals ({len(feedback)} feedback).")
+    norm = np.linalg.norm(weighted_sum)
+    return (weighted_sum / norm) if norm > 0 else None
