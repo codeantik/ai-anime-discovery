@@ -4,7 +4,8 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ExternalLink, Loader2, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 import { AddToAniListButton } from "@/components/AddToAniListButton";
 import { AddToMALButton } from "@/components/AddToMALButton";
 import { AddToWatchlistButton } from "@/components/AddToWatchlistButton";
@@ -21,11 +22,48 @@ function humanize(value?: string) {
     .join(" ");
 }
 
+function cleanSynopsis(raw: string): string {
+  return raw
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .trim();
+}
+
+const SYNOPSIS_LIMIT = 400;
+
+function Synopsis({ text }: { text: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const cleaned = useMemo(() => cleanSynopsis(text), [text]);
+  const isLong = cleaned.length > SYNOPSIS_LIMIT;
+  const shown = expanded || !isLong ? cleaned : `${cleaned.slice(0, SYNOPSIS_LIMIT).trimEnd()}…`;
+
+  return (
+    <>
+      <p className="whitespace-pre-line leading-relaxed text-slate-400">{shown}</p>
+      {isLong && (
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          className="mt-2 cursor-pointer text-sm font-medium text-purple-400 transition-colors hover:text-purple-300"
+        >
+          {expanded ? "Show less" : "Show more"}
+        </button>
+      )}
+    </>
+  );
+}
+
 export default function AnimeDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const anilistId = Number(params.id);
   const { data: anime, isLoading, error } = useAnimeDetail(anilistId);
   const { data: similar } = useSimilarAnime(anilistId);
+
+  const goBack = () => {
+    if (window.history.length > 1) router.back();
+    else router.push("/discover");
+  };
 
   if (isLoading) {
     return (
@@ -60,7 +98,7 @@ export default function AnimeDetailPage() {
   return (
     <main className="relative min-h-screen pb-20">
       {/* Banner */}
-      <div className="relative h-56 w-full overflow-hidden sm:h-72">
+      <div className="pointer-events-none relative h-56 w-full overflow-hidden sm:h-72">
         {anime.banner_image ? (
           <Image src={anime.banner_image} alt="" fill className="object-cover opacity-50" priority />
         ) : (
@@ -70,12 +108,13 @@ export default function AnimeDetailPage() {
       </div>
 
       <div className="mx-auto -mt-24 max-w-5xl px-4 sm:-mt-32">
-        <Link
-          href="/discover"
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-slate-400 transition-colors hover:text-white"
+        <button
+          type="button"
+          onClick={goBack}
+          className="mb-4 inline-flex cursor-pointer items-center gap-1.5 rounded-full bg-black/30 px-3 py-1.5 text-sm font-medium text-white/90 backdrop-blur-sm transition-colors hover:bg-black/50 hover:text-white"
         >
           <ArrowLeft className="h-4 w-4" /> Back
-        </Link>
+        </button>
 
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -97,7 +136,9 @@ export default function AnimeDetailPage() {
           {/* Info */}
           <div className="flex flex-1 flex-col gap-3">
             <div>
-              <h1 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">{anime.title}</h1>
+              <h1 className="text-2xl font-extrabold tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)] sm:text-3xl">
+                {anime.title}
+              </h1>
               {anime.title_romaji && anime.title_romaji !== anime.title && (
                 <p className="mt-0.5 text-sm text-slate-500">{anime.title_romaji}</p>
               )}
@@ -151,7 +192,7 @@ export default function AnimeDetailPage() {
             className="mt-10"
           >
             <h2 className="mb-2 text-lg font-bold text-white">Synopsis</h2>
-            <p className="whitespace-pre-line leading-relaxed text-slate-400">{anime.synopsis}</p>
+            <Synopsis text={anime.synopsis} />
           </motion.section>
         )}
 

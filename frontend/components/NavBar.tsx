@@ -96,7 +96,7 @@ function ConnectionPill({
           onClick={onLogout}
           disabled={loggingOut}
           title={disconnectTitle}
-          className="rounded-full p-0.5 text-slate-500 transition-colors hover:text-red-400"
+          className="cursor-pointer rounded-full p-0.5 text-slate-500 transition-colors hover:text-red-400 disabled:cursor-not-allowed"
         >
           <X className="h-3.5 w-3.5" />
         </button>
@@ -247,7 +247,7 @@ export function NavBar() {
         {/* below sm: single account popover */}
         <Popover.Root>
           <Popover.Trigger
-            className="relative flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition-colors hover:text-white sm:hidden"
+            className="relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-300 transition-colors hover:text-white sm:hidden"
             title="Account"
           >
             <User className="h-4 w-4" />

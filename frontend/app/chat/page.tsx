@@ -88,7 +88,7 @@ export default function ChatPage() {
                         <button
                           key={`${rec.anilist_id}-${recIndex}`}
                           onClick={() => router.push(`/anime/${rec.anilist_id}`)}
-                          className="rounded-xl border border-white/8 bg-white/5 p-3 text-left transition-colors hover:border-purple-500/30 hover:bg-white/10"
+                          className="cursor-pointer rounded-xl border border-white/8 bg-white/5 p-3 text-left transition-colors hover:border-purple-500/30 hover:bg-white/10"
                         >
                           <div className="flex flex-wrap items-baseline justify-between gap-1">
                             <span className="font-semibold text-white">{rec.title}</span>
@@ -149,7 +149,7 @@ export default function ChatPage() {
             onClick={send}
             disabled={isPending || !input.trim()}
             aria-label="Send message"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white transition-opacity disabled:opacity-40"
+            className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Send className="h-4 w-4" />
           </button>

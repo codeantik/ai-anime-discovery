@@ -76,7 +76,7 @@ export function FilterBar({ genres, formats, filters, onChange }: Props) {
         <button
           type="button"
           onClick={() => onChange(EMPTY_FILTERS)}
-          className="flex items-center gap-1 rounded-full border border-white/10 px-3 py-1.5 text-xs text-slate-400 transition-colors hover:text-white"
+          className="flex cursor-pointer items-center gap-1 rounded-full border border-white/10 px-3 py-1.5 text-xs text-slate-400 transition-colors hover:text-white"
         >
           <X className="h-3 w-3" /> Clear
         </button>

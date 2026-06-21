@@ -24,7 +24,7 @@ export function AddToWatchlistButton({ anilistId }: Props) {
       onClick={() => !isPending && (isBookmarked ? remove(anilistId) : add(anilistId))}
       disabled={isPending}
       title={isBookmarked ? "Remove from watchlist" : "Save for later"}
-      className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-all duration-200
+      className={`flex cursor-pointer items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-all duration-200
         ${isBookmarked
           ? "border border-amber-500/30 bg-amber-500/15 text-amber-400"
           : "border border-amber-500/20 bg-amber-500/10 text-amber-300 hover:border-amber-400/40 hover:bg-amber-500/20"

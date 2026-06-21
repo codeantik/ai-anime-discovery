@@ -126,7 +126,7 @@ export function ResultsGrid({ recommendations, queryUsed, onReset }: Props) {
       {filtered.length === 0 ? (
         <div className="py-16 text-center text-slate-500">
           No picks match your filters.
-          <button onClick={() => setFilters(EMPTY_FILTERS)} className="ml-2 text-purple-400 underline">
+          <button onClick={() => setFilters(EMPTY_FILTERS)} className="ml-2 cursor-pointer text-purple-400 underline">
             Clear filters
           </button>
         </div>

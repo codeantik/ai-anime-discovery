@@ -56,7 +56,7 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-all duration-200
+      className={`cursor-pointer rounded-full border px-4 py-1.5 text-sm font-medium transition-all duration-200
         ${selected
           ? "border-purple-500 bg-purple-500/20 text-purple-200 shadow-[0_0_12px_rgba(168,85,247,0.3)]"
           : "border-white/10 bg-white/5 text-slate-400 hover:border-white/30 hover:text-white"
@@ -74,7 +74,7 @@ function PillButton({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-xl border px-5 py-2 text-sm font-medium transition-all duration-200
+      className={`cursor-pointer rounded-xl border px-5 py-2 text-sm font-medium transition-all duration-200
         ${selected
           ? "border-indigo-500 bg-indigo-500/20 text-indigo-200"
           : "border-white/10 bg-white/5 text-slate-400 hover:border-white/30 hover:text-white"
@@ -187,7 +187,7 @@ export function PreferencesForm({ onSubmit, isLoading }: Props) {
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {MOODS.map(({ label, emoji }) => (
                   <button key={label} type="button" onClick={() => setMood(mood === label ? "" : label)}
-                    className={`flex flex-col items-center gap-1 rounded-2xl border p-4 text-center transition-all duration-200
+                    className={`flex cursor-pointer flex-col items-center gap-1 rounded-2xl border p-4 text-center transition-all duration-200
                       ${mood === label
                         ? "border-pink-500/60 bg-pink-500/15 shadow-[0_0_16px_rgba(236,72,153,0.2)]"
                         : "border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10"
@@ -241,7 +241,7 @@ export function PreferencesForm({ onSubmit, isLoading }: Props) {
                 {lovedTitles.map((t) => (
                   <span key={t} className="flex items-center gap-1 rounded-full bg-purple-500/20 px-3 py-1 text-sm text-purple-200">
                     {t}
-                    <button onClick={() => setLovedTitles((prev) => prev.filter((x) => x !== t))}>
+                    <button type="button" onClick={() => setLovedTitles((prev) => prev.filter((x) => x !== t))} className="cursor-pointer">
                       <X className="h-3 w-3 opacity-60 hover:opacity-100" />
                     </button>
                   </span>

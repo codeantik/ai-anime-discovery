@@ -28,7 +28,7 @@ export function FeedbackButtons({ anilistId }: Props) {
         onClick={() => toggle(1)}
         disabled={isPending}
         title={signal === 1 ? "Remove like" : "I like this"}
-        className={`rounded-full p-1.5 transition-all duration-200
+        className={`cursor-pointer rounded-full p-1.5 transition-all duration-200
           ${signal === 1
             ? "border border-emerald-500/30 bg-emerald-500/15 text-emerald-400"
             : "border border-white/10 bg-white/5 text-slate-400 hover:border-emerald-400/40 hover:text-emerald-300"
@@ -40,7 +40,7 @@ export function FeedbackButtons({ anilistId }: Props) {
         onClick={() => toggle(-1)}
         disabled={isPending}
         title={signal === -1 ? "Remove dislike" : "Not for me"}
-        className={`rounded-full p-1.5 transition-all duration-200
+        className={`cursor-pointer rounded-full p-1.5 transition-all duration-200
           ${signal === -1
             ? "border border-rose-500/30 bg-rose-500/15 text-rose-400"
             : "border border-white/10 bg-white/5 text-slate-400 hover:border-rose-400/40 hover:text-rose-300"
