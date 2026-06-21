@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -31,6 +33,13 @@ class RecommendResponse(BaseModel):
     query_used: str
     total_candidates: int
     personalized: bool = False
+
+
+class DigestResponse(BaseModel):
+    available: bool
+    recommendations: list[AnimeRecommendation] = []
+    generated_at: datetime | None = None
+    viewed: bool = True
 
 
 class Character(BaseModel):

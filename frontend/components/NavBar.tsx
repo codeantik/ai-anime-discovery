@@ -2,13 +2,14 @@
 
 import { Popover } from "@base-ui/react/popover";
 import { motion } from "framer-motion";
-import { Bookmark, Compass, MessageCircle, Sparkles, User, X } from "lucide-react";
+import { Bell, Bookmark, Compass, MessageCircle, Sparkles, User, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef } from "react";
 import { BACKEND_URL } from "@/lib/backendUrl";
 import { useAniListLogout, useAniListUser } from "@/lib/hooks/useAniListAuth";
+import { useDigest } from "@/lib/hooks/useDigest";
 import { useGoogleLogout, useGoogleUser } from "@/lib/hooks/useGoogleAuth";
 import { useMALLogout, useMALUser } from "@/lib/hooks/useMALAuth";
 
@@ -16,6 +17,7 @@ const NAV_LINKS = [
   { href: "/discover", label: "Discover", icon: Compass },
   { href: "/chat", label: "Chat", icon: MessageCircle },
   { href: "/watchlist", label: "Watchlist", icon: Bookmark },
+  { href: "/digest", label: "For You", icon: Bell },
 ];
 
 type ConnectionAccent = "emerald" | "teal" | "blue";
@@ -126,8 +128,10 @@ export function NavBar() {
   const { mutate: logout, isPending: loggingOut } = useAniListLogout();
   const { data: malUser, isLoading: malLoading } = useMALUser();
   const { mutate: malLogout, isPending: malLoggingOut } = useMALLogout();
+  const { data: digest } = useDigest();
 
   const anyConnected = Boolean(googleUser || user || malUser);
+  const hasUnreadDigest = Boolean(digest?.available && !digest.viewed);
 
   const connections = (
     <>
@@ -192,12 +196,15 @@ export function NavBar() {
               <Link
                 key={href}
                 href={href}
-                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-colors ${
+                className={`relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-colors ${
                   active ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
                 {label}
+                {href === "/digest" && hasUnreadDigest && (
+                  <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-pink-500 ring-2 ring-slate-950" />
+                )}
               </Link>
             );
           })}
