@@ -181,7 +181,8 @@ async def recommend(
 
     if not candidates:
         return RecommendResponse(
-            recommendations=[], query_used=query, total_candidates=0
+            recommendations=[], query_used=query, total_candidates=0,
+            personalized=taste_vec is not None,
         )
 
     # LLM re-rank
@@ -232,4 +233,5 @@ async def recommend(
         recommendations=recommendations,
         query_used=query,
         total_candidates=len(candidates),
+        personalized=taste_vec is not None,
     )

@@ -30,6 +30,7 @@ class RecommendResponse(BaseModel):
     recommendations: list[AnimeRecommendation]
     query_used: str
     total_candidates: int
+    personalized: bool = False
 
 
 class Character(BaseModel):

@@ -2,6 +2,7 @@
 
 import logging
 
+from app.core import cache
 from app.core.db import get_db
 
 logger = logging.getLogger(__name__)
@@ -46,3 +47,5 @@ async def set_feedback(user_id: int, anilist_id: int, signal: int) -> None:
             )
     except Exception as e:
         logger.warning(f"Failed to set feedback for user {user_id}: {e}")
+        return
+    cache.invalidate(f"taste:{user_id}")

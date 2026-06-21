@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { ConnectAniListBanner } from "@/components/ConnectAniListBanner";
 import { PreferencesForm } from "@/components/PreferencesForm";
 import { ResultsGrid } from "@/components/ResultsGrid";
 import { useRecommendations, RecommendRequest } from "@/lib/hooks/useRecommendations";
@@ -52,7 +53,7 @@ export default function DiscoverPage() {
               className="mb-6 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-300"
             >
               {error.message}
-              <button onClick={reset} className="ml-3 underline opacity-70 hover:opacity-100">Try again</button>
+              <button onClick={reset} className="ml-3 cursor-pointer underline opacity-70 hover:opacity-100">Try again</button>
             </motion.div>
           )}
 
@@ -62,14 +63,17 @@ export default function DiscoverPage() {
               {data.recommendations.length === 0 ? (
                 <div className="py-20 text-center text-slate-500">
                   No matches found. Try loosening your filters.
-                  <button onClick={reset} className="ml-2 text-purple-400 underline">Start over</button>
+                  <button onClick={reset} className="ml-2 cursor-pointer text-purple-400 underline">Start over</button>
                 </div>
               ) : (
-                <ResultsGrid
-                  recommendations={data.recommendations}
-                  queryUsed={data.query_used}
-                  onReset={reset}
-                />
+                <>
+                  {!data.personalized && <ConnectAniListBanner />}
+                  <ResultsGrid
+                    recommendations={data.recommendations}
+                    queryUsed={data.query_used}
+                    onReset={reset}
+                  />
+                </>
               )}
             </motion.div>
           ) : (

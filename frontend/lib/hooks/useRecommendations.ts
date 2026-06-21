@@ -32,6 +32,7 @@ export interface RecommendResponse {
   recommendations: AnimeRecommendation[];
   query_used: string;
   total_candidates: number;
+  personalized: boolean;
 }
 
 async function fetchRecommendations(prefs: RecommendRequest): Promise<RecommendResponse> {
