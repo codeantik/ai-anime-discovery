@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Background3D } from "@/components/Background3D";
 import { NavBar } from "@/components/NavBar";
 import { Providers } from "./providers";
 import "./globals.css";
@@ -28,9 +29,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-slate-950 text-slate-50">
+        <Background3D />
         <Providers>
           <NavBar />
-          <div className="flex-1">{children}</div>
+          <div className="relative flex-1">{children}</div>
         </Providers>
       </body>
     </html>
