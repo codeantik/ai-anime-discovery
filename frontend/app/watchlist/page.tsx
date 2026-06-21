@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Bookmark, Loader2 } from "lucide-react";
 import { AnimeCard } from "@/components/AnimeCard";
+import { ShareWatchlistButton } from "@/components/ShareWatchlistButton";
 import { BACKEND_URL } from "@/lib/backendUrl";
 import { useAniListUser } from "@/lib/hooks/useAniListAuth";
 import { useWatchlist } from "@/lib/hooks/useWatchlist";
@@ -52,15 +53,18 @@ export default function WatchlistPage() {
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="mb-8"
+        className="mb-8 flex flex-wrap items-center justify-between gap-4"
       >
-        <h1 className="text-2xl font-bold text-white">
-          Your{" "}
-          <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            Watchlist
-          </span>
-        </h1>
-        <p className="mt-1 text-sm text-slate-500">Anime you&apos;ve saved for later.</p>
+        <div>
+          <h1 className="text-2xl font-bold text-white">
+            Your{" "}
+            <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Watchlist
+            </span>
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">Anime you&apos;ve saved for later.</p>
+        </div>
+        {watchlist && watchlist.length > 0 && <ShareWatchlistButton />}
       </motion.div>
 
       {!watchlist || watchlist.length === 0 ? (

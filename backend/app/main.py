@@ -18,6 +18,7 @@ from app.routers import (
     mal,
     mal_auth,
     recommend,
+    shares,
     watchlist,
 )
 
@@ -55,3 +56,4 @@ app.include_router(watchlist.router)
 app.include_router(feedback.router)
 app.include_router(google_auth.router)
 app.include_router(digest.router)
+app.include_router(shares.router)

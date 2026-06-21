@@ -42,6 +42,11 @@ class DigestResponse(BaseModel):
     viewed: bool = True
 
 
+class SharedResponse(BaseModel):
+    type: str  # "card" | "watchlist"
+    anime: list[AnimeRecommendation]
+
+
 class Character(BaseModel):
     name: str
     image: str | None = None

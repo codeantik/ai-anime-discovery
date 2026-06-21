@@ -8,6 +8,7 @@ import { AddToAniListButton } from "@/components/AddToAniListButton";
 import { AddToMALButton } from "@/components/AddToMALButton";
 import { AddToWatchlistButton } from "@/components/AddToWatchlistButton";
 import { FeedbackButtons } from "@/components/FeedbackButtons";
+import { ShareButton } from "@/components/ShareButton";
 import { AnimeRecommendation } from "@/lib/hooks/useRecommendations";
 
 interface Props {
@@ -95,6 +96,7 @@ export function AnimeCard({ anime, index }: Props) {
             <AddToAniListButton anilistId={anime.anilist_id} />
             <AddToMALButton anilistId={anime.anilist_id} />
             <AddToWatchlistButton anilistId={anime.anilist_id} />
+            <ShareButton anilistId={anime.anilist_id} recommendedBecause={anime.recommended_because} />
           </div>
         </div>
       </div>
