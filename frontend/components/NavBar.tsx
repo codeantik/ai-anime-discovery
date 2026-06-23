@@ -2,7 +2,7 @@
 
 import { Popover } from "@base-ui/react/popover";
 import { motion } from "framer-motion";
-import { Bell, Bookmark, Compass, MessageCircle, Sparkles, User, X } from "lucide-react";
+import { Bell, Bookmark, Compass, MessageCircle, PieChart, Sparkles, User, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -18,6 +18,7 @@ const NAV_LINKS = [
   { href: "/chat", label: "Chat", icon: MessageCircle },
   { href: "/watchlist", label: "Watchlist", icon: Bookmark },
   { href: "/digest", label: "For You", icon: Bell },
+  { href: "/taste", label: "Taste", icon: PieChart },
 ];
 
 type ConnectionAccent = "emerald" | "teal" | "blue";

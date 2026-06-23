@@ -42,6 +42,17 @@ class DigestResponse(BaseModel):
     viewed: bool = True
 
 
+class TasteProfileItem(BaseModel):
+    name: str
+    weight: float = Field(ge=0.0, le=1.0)
+
+
+class TasteProfileResponse(BaseModel):
+    available: bool
+    genres: list[TasteProfileItem] = []
+    tags: list[TasteProfileItem] = []
+
+
 class SharedResponse(BaseModel):
     type: str  # "card" | "watchlist" | "digest"
     anime: list[AnimeRecommendation]

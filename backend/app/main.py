@@ -19,6 +19,7 @@ from app.routers import (
     mal_auth,
     recommend,
     shares,
+    taste,
     watchlist,
 )
 
@@ -57,3 +58,4 @@ app.include_router(feedback.router)
 app.include_router(google_auth.router)
 app.include_router(digest.router)
 app.include_router(shares.router)
+app.include_router(taste.router)

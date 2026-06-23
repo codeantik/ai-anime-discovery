@@ -49,3 +49,4 @@ async def set_feedback(user_id: int, anilist_id: int, signal: int) -> None:
         logger.warning(f"Failed to set feedback for user {user_id}: {e}")
         return
     cache.invalidate(f"taste:{user_id}")
+    cache.invalidate(f"profile:{user_id}")
