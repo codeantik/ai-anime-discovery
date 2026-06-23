@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Loader2, Sparkles } from "lucide-react";
 import { useEffect } from "react";
 import { AnimeCard } from "@/components/AnimeCard";
+import { ShareDigestButton } from "@/components/ShareDigestButton";
 import { BACKEND_URL } from "@/lib/backendUrl";
 import { useAniListUser } from "@/lib/hooks/useAniListAuth";
 import { useDigest, useMarkDigestViewed } from "@/lib/hooks/useDigest";
@@ -60,19 +61,22 @@ export default function DigestPage() {
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="mb-8"
+        className="mb-8 flex flex-wrap items-start justify-between gap-3"
       >
-        <h1 className="text-2xl font-bold text-white">
-          New{" "}
-          <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            For You
-          </span>
-        </h1>
-        <p className="mt-1 text-sm text-slate-500">
-          {digest?.generated_at
-            ? `Refreshed ${new Date(digest.generated_at).toLocaleString()}`
-            : "Picks based on your taste vector, refreshed daily."}
-        </p>
+        <div>
+          <h1 className="text-2xl font-bold text-white">
+            New{" "}
+            <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              For You
+            </span>
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            {digest?.generated_at
+              ? `Refreshed ${new Date(digest.generated_at).toLocaleString()}`
+              : "Picks based on your taste vector, refreshed daily."}
+          </p>
+        </div>
+        {digest?.available && <ShareDigestButton />}
       </motion.div>
 
       {!digest?.available ? (

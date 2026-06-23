@@ -56,6 +56,29 @@ async def create_watchlist_share(owner_id: int) -> str | None:
     return token
 
 
+async def create_digest_share(owner_id: int) -> str | None:
+    db = get_db()
+    if db is None:
+        return None
+    try:
+        existing = await db[COLLECTION].find_one({"type": "digest", "owner_id": owner_id})
+        if existing:
+            return existing["_id"]
+        token = secrets.token_urlsafe(16)
+        await db[COLLECTION].insert_one(
+            {
+                "_id": token,
+                "type": "digest",
+                "owner_id": owner_id,
+                "created_at": datetime.now(timezone.utc),
+            }
+        )
+    except Exception as e:
+        logger.warning(f"Failed to create digest share for user {owner_id}: {e}")
+        return None
+    return token
+
+
 async def get_share(token: str) -> dict | None:
     db = get_db()
     if db is None:

@@ -5,8 +5,9 @@ import { BACKEND_URL } from "@/lib/backendUrl";
 import { AnimeRecommendation } from "@/lib/hooks/useRecommendations";
 
 interface SharedResponse {
-  type: "card" | "watchlist";
+  type: "card" | "watchlist" | "digest";
   anime: AnimeRecommendation[];
+  generated_at?: string | null;
 }
 
 async function shareCard(args: { anilist_id: number; recommended_because?: string }): Promise<{ token: string }> {
@@ -35,6 +36,18 @@ async function shareWatchlist(): Promise<{ token: string }> {
   return res.json();
 }
 
+async function shareDigest(): Promise<{ token: string }> {
+  const res = await fetch(`${BACKEND_URL}/api/share/digest`, {
+    method: "POST",
+    credentials: "include",
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: "Failed to create share link" }));
+    throw new Error(err.detail ?? "Failed to create share link");
+  }
+  return res.json();
+}
+
 async function fetchSharedContent(token: string): Promise<SharedResponse> {
   const res = await fetch(`${BACKEND_URL}/api/share/${token}`);
   if (!res.ok) {
@@ -50,6 +63,10 @@ export function useCreateCardShare() {
 
 export function useCreateWatchlistShare() {
   return useMutation({ mutationFn: shareWatchlist });
+}
+
+export function useCreateDigestShare() {
+  return useMutation({ mutationFn: shareDigest });
 }
 
 export function useSharedContent(token: string) {

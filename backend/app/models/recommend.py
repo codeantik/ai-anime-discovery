@@ -43,8 +43,9 @@ class DigestResponse(BaseModel):
 
 
 class SharedResponse(BaseModel):
-    type: str  # "card" | "watchlist"
+    type: str  # "card" | "watchlist" | "digest"
     anime: list[AnimeRecommendation]
+    generated_at: datetime | None = None
 
 
 class Character(BaseModel):

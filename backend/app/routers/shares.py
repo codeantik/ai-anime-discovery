@@ -6,7 +6,8 @@ from pydantic import BaseModel
 from app.core.auth import CurrentUser, get_current_user
 from app.core.index import get_anime, get_faiss_idx_by_anilist_id
 from app.models.recommend import AnimeRecommendation, SharedResponse
-from app.services.shares import create_card_share, create_watchlist_share, get_share
+from app.services.digest import get_digest
+from app.services.shares import create_card_share, create_digest_share, create_watchlist_share, get_share
 from app.services.watchlist import get_watchlist_ids
 
 router = APIRouter(prefix="/api/share", tags=["share"])
@@ -54,6 +55,14 @@ async def share_watchlist(user: CurrentUser = Depends(get_current_user)) -> dict
     return {"token": token}
 
 
+@router.post("/digest")
+async def share_digest(user: CurrentUser = Depends(get_current_user)) -> dict:
+    token = await create_digest_share(user.id)
+    if token is None:
+        raise HTTPException(500, "Failed to create share link.")
+    return {"token": token}
+
+
 @router.get("/{token}")
 async def get_shared(token: str) -> SharedResponse:
     share = await get_share(token)
@@ -68,6 +77,16 @@ async def get_shared(token: str) -> SharedResponse:
         return SharedResponse(
             type="card",
             anime=[_to_recommendation(anime, share.get("recommended_because") or "")],
+        )
+
+    if share["type"] == "digest":
+        doc = await get_digest(share["owner_id"], "")
+        if not doc or not doc.get("recommendations"):
+            return SharedResponse(type="digest", anime=[])
+        return SharedResponse(
+            type="digest",
+            anime=[AnimeRecommendation(**r) for r in doc["recommendations"]],
+            generated_at=doc["generated_at"],
         )
 
     ids = await get_watchlist_ids(share["owner_id"])

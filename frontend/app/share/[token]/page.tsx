@@ -49,6 +49,13 @@ export default function SharePage() {
               </span>{" "}
               shared with you
             </>
+          ) : data.type === "digest" ? (
+            <>
+              A shared{" "}
+              <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                digest
+              </span>
+            </>
           ) : (
             <>
               A shared{" "}
@@ -58,12 +65,17 @@ export default function SharePage() {
             </>
           )}
         </h1>
+        {data.type === "digest" && data.generated_at && (
+          <p className="mt-1 text-sm text-slate-500">
+            Refreshed {new Date(data.generated_at).toLocaleString()}
+          </p>
+        )}
       </motion.div>
 
       {data.anime.length === 0 ? (
         <div className="flex flex-col items-center gap-2 py-16 text-center text-slate-500">
           <Share2 className="h-8 w-8 text-slate-700" />
-          This watchlist is empty.
+          {data.type === "digest" ? "This digest is empty." : "This watchlist is empty."}
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
