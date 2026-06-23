@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowLeft, ExternalLink, Loader2, Star } from "lucide-react";
+import { ArrowLeft, ExternalLink, Loader2, Sparkles, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
@@ -85,6 +85,8 @@ export default function AnimeDetailPage() {
   }
 
   const score = anime.mean_score ? (anime.mean_score / 10).toFixed(1) : null;
+  const tasteMatch =
+    typeof anime.taste_match === "number" ? Math.round(anime.taste_match * 100) : null;
   const meta = [
     anime.year,
     humanize(anime.format ?? undefined),
@@ -150,6 +152,12 @@ export default function AnimeDetailPage() {
                 <div className="flex items-center gap-1 rounded-full bg-black/40 px-3 py-1 text-sm font-bold text-yellow-400">
                   <Star className="h-4 w-4 fill-yellow-400" />
                   {score}
+                </div>
+              )}
+              {tasteMatch !== null && (
+                <div className="flex items-center gap-1 rounded-full bg-purple-500/20 px-3 py-1 text-sm font-bold text-purple-300">
+                  <Sparkles className="h-4 w-4" />
+                  {tasteMatch}% match for you
                 </div>
               )}
               <a

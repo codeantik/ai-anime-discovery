@@ -32,10 +32,13 @@ export interface AnimeDetail {
   studios: string[];
   trailer?: Trailer;
   characters: Character[];
+  taste_match?: number | null;
 }
 
 async function fetchAnimeDetail(anilistId: number): Promise<AnimeDetail> {
-  const res = await fetch(`${BACKEND_URL}/api/anime/${anilistId}`);
+  const res = await fetch(`${BACKEND_URL}/api/anime/${anilistId}`, {
+    credentials: "include",
+  });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: "Failed to load anime" }));
     throw new Error(err.detail ?? "Failed to load anime");

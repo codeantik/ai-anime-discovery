@@ -1,8 +1,11 @@
-from fastapi import APIRouter, HTTPException
+import numpy as np
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.core import anilist_client
-from app.core.index import get_anime, get_faiss_idx_by_anilist_id, get_similar
+from app.core.auth import CurrentUser, get_optional_user
+from app.core.index import get_anime, get_faiss_idx_by_anilist_id, get_similar, get_vector
 from app.models.recommend import AnimeDetail, AnimeRecommendation, Character, Trailer
+from app.services.taste import get_taste_vector
 
 router = APIRouter(prefix="/api", tags=["anime"])
 
@@ -39,7 +42,10 @@ async def similar_anime(anilist_id: int, k: int = 8) -> list[AnimeRecommendation
 
 
 @router.get("/anime/{anilist_id}", response_model=AnimeDetail)
-async def anime_detail(anilist_id: int) -> AnimeDetail:
+async def anime_detail(
+    anilist_id: int,
+    user: CurrentUser | None = Depends(get_optional_user),
+) -> AnimeDetail:
     local = None
     faiss_idx = get_faiss_idx_by_anilist_id(anilist_id)
     if faiss_idx is not None:
@@ -96,6 +102,13 @@ async def anime_detail(anilist_id: int) -> AnimeDetail:
             for c in (live.get("characters") or {}).get("nodes", [])
         ]
 
+    taste_match = None
+    if user is not None:
+        taste_vec = await get_taste_vector(user.access_token, user.id)
+        anime_vec = get_vector(anilist_id)
+        if taste_vec is not None and anime_vec is not None:
+            taste_match = max(0.0, min(1.0, float(np.dot(taste_vec, anime_vec))))
+
     return AnimeDetail(
         anilist_id=anilist_id,
         title=title or "",
@@ -115,4 +128,5 @@ async def anime_detail(anilist_id: int) -> AnimeDetail:
         studios=studios,
         trailer=trailer,
         characters=characters,
+        taste_match=taste_match,
     )

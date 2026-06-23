@@ -60,3 +60,12 @@ def get_anime(faiss_idx: int) -> dict | None:
 def get_faiss_idx_by_anilist_id(anilist_id: int) -> int | None:
     load_index()  # ensure _anilist_to_faiss is populated
     return _anilist_to_faiss.get(anilist_id) if _anilist_to_faiss else None
+
+
+def get_vector(anilist_id: int) -> np.ndarray | None:
+    """Reconstructs a catalog anime's stored (unit-normalized) embedding by anilist_id."""
+    faiss_idx = get_faiss_idx_by_anilist_id(anilist_id)
+    if faiss_idx is None:
+        return None
+    index, _ = load_index()
+    return index.reconstruct(faiss_idx)

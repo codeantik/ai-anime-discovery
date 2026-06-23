@@ -118,6 +118,21 @@ MAL OAuth2 uses **PKCE with the `plain` method**: `code_challenge` must equal `c
 
 All sixteen phases are complete. Build one phase at a time on future work — verify acceptance criteria, commit, summarize, wait for go-ahead.
 
+## Phases 17–22 (planned, ordered by implementation complexity)
+
+Phase 17 is in progress; Phases 18–22 are queued and not yet built. Each reuses existing infrastructure (taste vector, FAISS index, shares, watchlist, digest) rather than new packages/services, per the Non-Negotiable Rules above. Because both the taste vector and FAISS-stored vectors are unit-normalized, cosine similarity between them is a plain dot product — the shared primitive for Phases 17, 18, and 21 (`backend/app/core/index.py::get_vector(anilist_id)` reconstructs a catalog anime's stored vector; dot it with `services/taste.py::get_taste_vector`).
+
+| Phase | Goal |
+|-------|------|
+| 17 | 🚧 "Taste Match" badge on the anime detail page: `index.py::get_vector(anilist_id)` (new helper using `index.reconstruct`, mirroring `get_similar`'s existing use of `reconstruct`) dotted with `get_taste_vector`, surfaced as `AnimeDetail.taste_match: float \| None` from `GET /api/anime/{anilist_id}` (switched to `get_optional_user`), rendered as a badge in `frontend/app/anime/[id]/page.tsx`. |
+| 18 | Taste-based watchlist sorting: `GET /api/watchlist?sort=added\|taste` — when `taste`, sorts the existing `AnimeRecommendation[]` by `get_vector(anilist_id)` · taste vector (falls back to insertion order with no signal); sort toggle in `frontend/app/watchlist/page.tsx`. |
+| 19 | "Share my digest" link: `services/shares.py::create_digest_share` (mirrors `create_watchlist_share`'s upsert-one-token-per-owner) + `POST /api/share/digest`; `GET /api/share/{token}` type-dispatch gains `"digest"`, live-resolved via `get_digest()` like watchlist shares; "Share my digest" button on `frontend/app/digest/page.tsx`. |
+| 20 | Taste profile / genre insights page: new `services/profile.py::get_taste_profile` aggregates genres/tags from the same AniList-history + feedback sources as the taste-vector centroid, weighted the same way, returning top-N with normalized weights; new `GET /api/taste/profile`; new `frontend/app/taste/page.tsx` rendering plain CSS/Framer Motion bars (no charting library) + NavBar link. |
+| 21 | Seasonal / new-release radar: live AniList query (IDs + season/seasonYear/status only — catalog has neither today) cached via `core/cache.py`, intersected with catalog `anilist_id`s, ranked by taste-vector dot product for logged-in users or by `mean_score`/popularity otherwise; new `services/seasonal.py`, `GET /api/seasonal`, `frontend/app/seasonal/page.tsx`. |
+| 22 | Friend/group combined recommendations: new `services/duo.py` — `create_duo_invite` snapshots the owner's taste vector into a new `duo_invites` collection; the guest's live taste vector is averaged with it and re-normalized, then passed into the existing `recommend()` (taste-vector-only, same pattern as `digest.py`); `POST /api/duo/invite`, `GET /api/duo/{token}`, `frontend/app/duo/[token]/page.tsx`. |
+
+Delivery process: ship one phase at a time, verify (including the mobile-width check for any UI), commit, summarize, and wait for explicit go-ahead before starting the next — do not start a phase before the previous one is approved.
+
 ## MAL OAuth Status
 
 Phase 3 originally targeted MAL OAuth2; it was swapped for **AniList OAuth** because the MAL developer page lacks social login. Phase 6 wired up the leftover MAL client/router (`backend/app/core/mal_client.py`, `backend/app/routers/mal_auth.py`, `backend/app/routers/mal.py`) as an independent second connection — login + "Add to MAL list" only. It does **not** feed the taste-vector centroid; AniList remains the sole history source for recommendations. The PKCE-plain gotcha below applies to `mal_auth.py`'s `/login` endpoint.

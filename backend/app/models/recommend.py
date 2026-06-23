@@ -76,3 +76,4 @@ class AnimeDetail(BaseModel):
     studios: list[str] = []
     trailer: Trailer | None = None
     characters: list[Character] = []
+    taste_match: float | None = None
