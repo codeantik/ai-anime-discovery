@@ -2,15 +2,17 @@
 
 import { motion } from "framer-motion";
 import { Bookmark, Loader2 } from "lucide-react";
+import { useState } from "react";
 import { AnimeCard } from "@/components/AnimeCard";
 import { ShareWatchlistButton } from "@/components/ShareWatchlistButton";
 import { BACKEND_URL } from "@/lib/backendUrl";
 import { useAniListUser } from "@/lib/hooks/useAniListAuth";
-import { useWatchlist } from "@/lib/hooks/useWatchlist";
+import { useWatchlist, WatchlistSort } from "@/lib/hooks/useWatchlist";
 
 export default function WatchlistPage() {
+  const [sort, setSort] = useState<WatchlistSort>("added");
   const { data: user, isLoading: userLoading } = useAniListUser();
-  const { data: watchlist, isLoading: watchlistLoading } = useWatchlist();
+  const { data: watchlist, isLoading: watchlistLoading } = useWatchlist(sort);
 
   if (userLoading) {
     return (
@@ -64,7 +66,33 @@ export default function WatchlistPage() {
           </h1>
           <p className="mt-1 text-sm text-slate-500">Anime you&apos;ve saved for later.</p>
         </div>
-        {watchlist && watchlist.length > 0 && <ShareWatchlistButton />}
+        {watchlist && watchlist.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1 text-sm">
+              <button
+                onClick={() => setSort("added")}
+                className={`rounded-full px-3 py-1 transition-colors ${
+                  sort === "added"
+                    ? "bg-purple-500/30 text-purple-200"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                Date added
+              </button>
+              <button
+                onClick={() => setSort("taste")}
+                className={`rounded-full px-3 py-1 transition-colors ${
+                  sort === "taste"
+                    ? "bg-purple-500/30 text-purple-200"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                Taste match
+              </button>
+            </div>
+            <ShareWatchlistButton />
+          </div>
+        )}
       </motion.div>
 
       {!watchlist || watchlist.length === 0 ? (

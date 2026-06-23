@@ -1,11 +1,13 @@
 """Watchlist endpoints — save anime for later (private, separate from AniList/MAL list pushes)."""
 
-from fastapi import APIRouter, Depends
+import numpy as np
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
 
 from app.core.auth import CurrentUser, get_current_user
-from app.core.index import get_anime, get_faiss_idx_by_anilist_id
+from app.core.index import get_anime, get_faiss_idx_by_anilist_id, get_vector
 from app.models.recommend import AnimeRecommendation
+from app.services.taste import get_taste_vector
 from app.services.watchlist import add_bookmark, get_watchlist_ids, remove_bookmark
 
 router = APIRouter(prefix="/api/watchlist", tags=["watchlist"])
@@ -16,8 +18,21 @@ class AddBookmarkRequest(BaseModel):
 
 
 @router.get("")
-async def list_watchlist(user: CurrentUser = Depends(get_current_user)) -> list[AnimeRecommendation]:
+async def list_watchlist(
+    sort: str = Query("added", pattern="^(added|taste)$"),
+    user: CurrentUser = Depends(get_current_user),
+) -> list[AnimeRecommendation]:
     ids = await get_watchlist_ids(user.id)
+
+    taste_vec = None
+    if sort == "taste":
+        taste_vec = await get_taste_vector(user.access_token, user.id)
+        if taste_vec is not None:
+            ids = sorted(
+                ids,
+                key=lambda anilist_id: _taste_score(taste_vec, anilist_id),
+                reverse=True,
+            )
 
     out: list[AnimeRecommendation] = []
     for anilist_id in ids:
@@ -45,6 +60,11 @@ async def list_watchlist(user: CurrentUser = Depends(get_current_user)) -> list[
             )
         )
     return out
+
+
+def _taste_score(taste_vec: np.ndarray, anilist_id: int) -> float:
+    anime_vec = get_vector(anilist_id)
+    return float(np.dot(taste_vec, anime_vec)) if anime_vec is not None else float("-inf")
 
 
 @router.post("/add")

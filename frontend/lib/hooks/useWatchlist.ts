@@ -5,8 +5,10 @@ import { BACKEND_URL } from "@/lib/backendUrl";
 import { AnimeRecommendation } from "@/lib/hooks/useRecommendations";
 import { useAniListUser } from "@/lib/hooks/useAniListAuth";
 
-async function fetchWatchlist(): Promise<AnimeRecommendation[]> {
-  const res = await fetch(`${BACKEND_URL}/api/watchlist`, { credentials: "include" });
+export type WatchlistSort = "added" | "taste";
+
+async function fetchWatchlist(sort: WatchlistSort): Promise<AnimeRecommendation[]> {
+  const res = await fetch(`${BACKEND_URL}/api/watchlist?sort=${sort}`, { credentials: "include" });
   if (!res.ok) return [];
   return res.json();
 }
@@ -35,11 +37,11 @@ async function removeFromWatchlist(anilist_id: number): Promise<void> {
   }
 }
 
-export function useWatchlist() {
+export function useWatchlist(sort: WatchlistSort = "added") {
   const { data: user } = useAniListUser();
   return useQuery<AnimeRecommendation[]>({
-    queryKey: ["watchlist"],
-    queryFn: fetchWatchlist,
+    queryKey: ["watchlist", sort],
+    queryFn: () => fetchWatchlist(sort),
     enabled: !!user,
     staleTime: 60 * 1000,
   });
