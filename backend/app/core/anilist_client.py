@@ -104,6 +104,25 @@ async def get_anime_detail(anilist_id: int) -> dict | None:
     return media
 
 
+async def get_seasonal_anime(season: str, year: int, per_page: int = 50) -> list[dict]:
+    """Live lookup of a season's anime — ids + status only (no auth required); the
+    catalog doesn't store season/status, so this is the live complement to it."""
+    data = await _gql(
+        """
+        query ($season: MediaSeason, $year: Int, $perPage: Int) {
+          Page(page: 1, perPage: $perPage) {
+            media(season: $season, seasonYear: $year, type: ANIME, sort: POPULARITY_DESC) {
+              id
+              status
+            }
+          }
+        }
+        """,
+        variables={"season": season, "year": year, "perPage": per_page},
+    )
+    return data["data"]["Page"]["media"]
+
+
 async def save_list_entry(token: str, anilist_id: int, status: str = "PLANNING") -> dict:
     """Add/update an anime on the user's AniList."""
     data = await _gql(

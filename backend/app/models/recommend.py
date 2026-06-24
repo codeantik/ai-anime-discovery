@@ -53,6 +53,13 @@ class TasteProfileResponse(BaseModel):
     tags: list[TasteProfileItem] = []
 
 
+class SeasonalResponse(BaseModel):
+    season: str
+    year: int
+    anime: list[AnimeRecommendation] = []
+    personalized: bool = False
+
+
 class SharedResponse(BaseModel):
     type: str  # "card" | "watchlist" | "digest"
     anime: list[AnimeRecommendation]

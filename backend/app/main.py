@@ -18,6 +18,7 @@ from app.routers import (
     mal,
     mal_auth,
     recommend,
+    seasonal,
     shares,
     taste,
     watchlist,
@@ -59,3 +60,4 @@ app.include_router(google_auth.router)
 app.include_router(digest.router)
 app.include_router(shares.router)
 app.include_router(taste.router)
+app.include_router(seasonal.router)
