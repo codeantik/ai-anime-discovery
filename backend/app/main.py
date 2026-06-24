@@ -11,6 +11,7 @@ from app.routers import (
     auth,
     chat,
     digest,
+    duo,
     feedback,
     google_auth,
     health,
@@ -61,3 +62,4 @@ app.include_router(digest.router)
 app.include_router(shares.router)
 app.include_router(taste.router)
 app.include_router(seasonal.router)
+app.include_router(duo.router)

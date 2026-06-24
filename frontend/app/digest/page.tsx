@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Loader2, Sparkles } from "lucide-react";
 import { useEffect } from "react";
 import { AnimeCard } from "@/components/AnimeCard";
+import { InviteFriendButton } from "@/components/InviteFriendButton";
 import { ShareDigestButton } from "@/components/ShareDigestButton";
 import { BACKEND_URL } from "@/lib/backendUrl";
 import { useAniListUser } from "@/lib/hooks/useAniListAuth";
@@ -76,7 +77,12 @@ export default function DigestPage() {
               : "Picks based on your taste vector, refreshed daily."}
           </p>
         </div>
-        {digest?.available && <ShareDigestButton />}
+        {digest?.available && (
+          <div className="flex flex-wrap gap-2">
+            <InviteFriendButton />
+            <ShareDigestButton />
+          </div>
+        )}
       </motion.div>
 
       {!digest?.available ? (

@@ -60,6 +60,11 @@ class SeasonalResponse(BaseModel):
     personalized: bool = False
 
 
+class DuoResponse(BaseModel):
+    combined: bool
+    recommendations: list[AnimeRecommendation] = []
+
+
 class SharedResponse(BaseModel):
     type: str  # "card" | "watchlist" | "digest"
     anime: list[AnimeRecommendation]
