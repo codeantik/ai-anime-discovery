@@ -87,15 +87,13 @@ export default function AnimeDetailPage() {
   const score = anime.mean_score ? (anime.mean_score / 10).toFixed(1) : null;
   const tasteMatch =
     typeof anime.taste_match === "number" ? Math.round(anime.taste_match * 100) : null;
-  const meta = [
+  const metaItems = [
     anime.year,
     humanize(anime.format ?? undefined),
     anime.episodes ? `${anime.episodes} ep` : null,
     anime.duration ? `${anime.duration} min` : null,
     humanize(anime.status),
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  ].filter(Boolean) as string[];
 
   return (
     <main className="relative min-h-screen pb-20">
@@ -136,7 +134,7 @@ export default function AnimeDetailPage() {
           </div>
 
           {/* Info */}
-          <div className="flex flex-1 flex-col gap-3">
+          <div className="relative flex flex-1 flex-col gap-3">
             <div>
               <h1 className="text-2xl font-extrabold tracking-tight text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)] sm:text-3xl">
                 {anime.title}
@@ -144,7 +142,11 @@ export default function AnimeDetailPage() {
               {anime.title_romaji && anime.title_romaji !== anime.title && (
                 <p className="mt-0.5 text-sm text-slate-500">{anime.title_romaji}</p>
               )}
-              {meta && <p className="mt-2 text-sm text-slate-400">{meta}</p>}
+              {metaItems.length > 0 && (
+                <p className="mt-2 break-words text-sm text-slate-400">
+                  {metaItems.join(" · ")}
+                </p>
+              )}
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
