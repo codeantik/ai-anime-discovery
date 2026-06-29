@@ -123,6 +123,26 @@ async def get_seasonal_anime(season: str, year: int, per_page: int = 50) -> list
     return data["data"]["Page"]["media"]
 
 
+async def get_all_list_ids(token: str, user_id: int) -> list[int]:
+    """Return all anime IDs currently on the user's list (any status)."""
+    data = await _gql(
+        """
+        query ($userId: Int) {
+          MediaListCollection(userId: $userId, type: ANIME) {
+            lists { entries { media { id } } }
+          }
+        }
+        """,
+        variables={"userId": user_id},
+        token=token,
+    )
+    ids: list[int] = []
+    for lst in data["data"]["MediaListCollection"]["lists"]:
+        for e in lst["entries"]:
+            ids.append(e["media"]["id"])
+    return ids
+
+
 async def save_list_entry(token: str, anilist_id: int, status: str = "PLANNING") -> dict:
     """Add/update an anime on the user's AniList."""
     data = await _gql(

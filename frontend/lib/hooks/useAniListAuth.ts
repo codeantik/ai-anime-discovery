@@ -57,9 +57,33 @@ export function useAniListLogout() {
   });
 }
 
+async function fetchAniListIds(): Promise<number[]> {
+  const res = await fetch(`${BACKEND_URL}/api/list/ids`, { credentials: "include" });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.ids as number[];
+}
+
+export function useAniListIds() {
+  const { data: user } = useAniListUser();
+  return useQuery<number[]>({
+    queryKey: ["anilist-ids"],
+    queryFn: fetchAniListIds,
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+}
+
 export function useAddToList() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ anilist_id, status }: { anilist_id: number; status?: string }) =>
       addToList(anilist_id, status),
+    onSuccess: (_, { anilist_id }) => {
+      queryClient.setQueryData<number[]>(["anilist-ids"], (old) =>
+        old ? (old.includes(anilist_id) ? old : [...old, anilist_id]) : [anilist_id],
+      );
+    },
   });
 }
